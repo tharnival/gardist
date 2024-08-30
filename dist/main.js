@@ -5198,7 +5198,7 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (flags) {
+var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{message: '...'},
 		$elm$core$Platform$Cmd$none);

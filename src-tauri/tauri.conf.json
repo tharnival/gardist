@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "tauritest",
+    "productName": "gardist",
     "version": "0.0.1"
   },
   "tauri": {
@@ -39,7 +39,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauritest.dev",
+      "identifier": "com.gardist.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
