@@ -17,5 +17,5 @@ ports.setPath.subscribe(async () => {
 });
 
 await listen("path_change", (event) => {
-  ports.updatePath.send(`${event.payload.msg}`);
+  ports.updatePath.send(event.payload.msg);
 });

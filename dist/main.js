@@ -5210,8 +5210,17 @@ var $author$project$Main$UpdateText = function (a) {
 	return {$: 'UpdateText', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$updatePath = _Platform_incomingPort('updatePath', $elm$json$Json$Decode$string);
+var $author$project$Main$updatePath = _Platform_incomingPort(
+	'updatePath',
+	$elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+			])));
 var $author$project$Main$updateText = _Platform_incomingPort('updateText', $elm$json$Json$Decode$string);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
@@ -5220,6 +5229,13 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Main$updateText($author$project$Main$UpdateText),
 				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
+};
+var $author$project$Util$isJust = function (x) {
+	if (x.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
 };
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Main$setPath = _Platform_outgoingPort(
@@ -5263,7 +5279,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							path: $elm$core$Maybe$Just(path)
+							path: $author$project$Util$isJust(path) ? path : model.path
 						}),
 					$elm$core$Platform$Cmd$none);
 		}

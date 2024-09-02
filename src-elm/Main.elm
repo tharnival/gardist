@@ -8,6 +8,7 @@ import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick)
 import Tailwind.Theme exposing (..)
 import Tailwind.Utilities exposing (..)
+import Util exposing (..)
 
 
 
@@ -47,7 +48,7 @@ port svn : String -> Cmd msg
 port setPath : () -> Cmd msg
 
 
-port updatePath : (String -> msg) -> Sub msg
+port updatePath : (Maybe String -> msg) -> Sub msg
 
 
 
@@ -58,7 +59,7 @@ type Msg
     = UpdateText String
     | Svn
     | SetPath
-    | UpdatePath String
+    | UpdatePath (Maybe String)
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -74,17 +75,17 @@ update msg model =
             ( model, setPath () )
 
         UpdatePath path ->
-            ( { model | path = Just path }, Cmd.none )
+            ( { model
+                | path =
+                    -- don't overwrite existing path with nothing
+                    if isJust path then
+                        path
 
-
-getPath : Model -> String
-getPath model =
-    case model.path of
-        Just path ->
-            path
-
-        Nothing ->
-            "."
+                    else
+                        model.path
+              }
+            , Cmd.none
+            )
 
 
 

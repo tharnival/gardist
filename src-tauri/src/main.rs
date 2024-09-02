@@ -8,7 +8,8 @@ use tauri::{AppHandle, Manager, State};
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
-    msg: String,
+    // msg: String,
+    msg: Option<String>,
 }
 
 #[tauri::command]
@@ -41,8 +42,10 @@ fn set_path(store: State<Store>) {
         let _ = app_handle.emit_all(
             "path_change",
             Payload {
-                // TODO: crashes when cancelling
-                msg: path.unwrap().to_str().unwrap_or("").into(),
+                msg: match path {
+                    Some(x) => x.to_str().map(str::to_string),
+                    None => None,
+                },
             },
         );
     });
