@@ -5285,7 +5285,13 @@ var $author$project$Main$update = F2(
 		}
 	});
 var $author$project$Main$SetPath = {$: 'SetPath'};
-var $author$project$Main$Svn = {$: 'Svn'};
+var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
+	function (a, b, c) {
+		return {$: 'Node', a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
+var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
+var $rtfeldman$elm_css$Html$Styled$button = $rtfeldman$elm_css$Html$Styled$node('button');
 var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
 	function (a, b) {
 		return {$: 'ExtendSelector', a: a, b: b};
@@ -5366,14 +5372,46 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color = functi
 		color);
 };
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0 = A2($rtfeldman$elm_css$Css$property, 'border-width', '0px');
-var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
-	function (a, b, c) {
-		return {$: 'Node', a: a, b: b, c: c};
+var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
+	function (a, b, c, d, e) {
+		return {$: 'Color', a: a, b: b, c: c, d: d, e: e};
 	});
-var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
-var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
-var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
-var $rtfeldman$elm_css$Html$Styled$button = $rtfeldman$elm_css$Html$Styled$node('button');
+var $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable = {$: 'ViaVariable'};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '209', '213', '219', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_600 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '75', '85', '99', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_800 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '31', '41', '55', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.5rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.5rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md = A2($rtfeldman$elm_css$Css$property, 'border-radius', '0.375rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
+			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
+		]));
+var $author$project$Main$buttonStyle = _List_fromArray(
+	[
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2,
+		$rtfeldman$elm_css$Css$hover(
+		_List_fromArray(
+			[
+				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_600)
+			])),
+		$rtfeldman$elm_css$Css$active(
+		_List_fromArray(
+			[
+				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_800)
+			]))
+	]);
 var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
 	function (a, b, c) {
 		return {$: 'Attribute', a: a, b: b, c: c};
@@ -7173,15 +7211,6 @@ var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
 var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
-var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
-	function (a, b, c, d, e) {
-		return {$: 'Color', a: a, b: b, c: c, d: d, e: e};
-	});
-var $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable = {$: 'ViaVariable'};
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '209', '213', '219', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_600 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '75', '85', '99', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_800 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '31', '41', '55', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
 var $rtfeldman$elm_css$Html$Styled$main_ = $rtfeldman$elm_css$Html$Styled$node('main');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -7208,13 +7237,8 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2 = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.5rem'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.5rem')
-		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md = A2($rtfeldman$elm_css$Css$property, 'border-radius', '0.375rem');
+var $author$project$Main$Svn = {$: 'Svn'};
+var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
 var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
 	return {$: 'Unstyled', a: a};
 };
@@ -7224,12 +7248,36 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
+var $author$project$Main$statusSection = function (model) {
+	return $author$project$Util$isJust(model.path) ? _List_fromArray(
 		[
-			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
-			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
-		]));
+			A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+			A2(
+			$rtfeldman$elm_css$Html$Styled$button,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_Utils_ap(
+						$author$project$Main$buttonStyle,
+						_List_fromArray(
+							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32]))),
+					$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text('status')
+				])),
+			A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+			A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text(model.message)
+				]))
+		]) : _List_Nil;
+};
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
 };
@@ -7871,26 +7919,6 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$view = function (model) {
-	var buttonStyle = $rtfeldman$elm_css$Html$Styled$Attributes$css(
-		_List_fromArray(
-			[
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0,
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md,
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl,
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64,
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2,
-				$rtfeldman$elm_css$Css$hover(
-				_List_fromArray(
-					[
-						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_600)
-					])),
-				$rtfeldman$elm_css$Css$active(
-				_List_fromArray(
-					[
-						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_800)
-					]))
-			]));
 	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
 			$rtfeldman$elm_css$Html$Styled$main_,
@@ -7900,48 +7928,34 @@ var $author$project$Main$view = function (model) {
 					A2(
 					$rtfeldman$elm_css$Html$Styled$div,
 					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							$rtfeldman$elm_css$Html$Styled$button,
-							_List_fromArray(
-								[
-									buttonStyle,
-									$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$SetPath)
-								]),
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text('choose folder')
-								])),
-							A2(
-							$rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text(
-									A2($elm$core$Maybe$withDefault, 'No path specified', model.path))
-								])),
-							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
-							A2(
-							$rtfeldman$elm_css$Html$Styled$button,
-							_List_fromArray(
-								[
-									buttonStyle,
-									$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
-								]),
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text('status')
-								])),
-							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
-							A2(
-							$rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text(model.message)
-								]))
-						]))
+					_Utils_ap(
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$button,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css(
+										_Utils_ap(
+											$author$project$Main$buttonStyle,
+											_List_fromArray(
+												[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
+										$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$SetPath)
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text('choose folder')
+									])),
+								A2(
+								$rtfeldman$elm_css$Html$Styled$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text(
+										A2($elm$core$Maybe$withDefault, 'No path specified', model.path))
+									]))
+							]),
+						$author$project$Main$statusSection(model)))
 				])));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

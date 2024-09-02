@@ -11,6 +11,14 @@ import Tailwind.Utilities exposing (..)
 import Util exposing (..)
 
 
+type alias SHtml x =
+    Html.Styled.Html x
+
+
+type alias Style =
+    List Css.Style
+
+
 
 -- MAIN
 
@@ -104,29 +112,39 @@ subscriptions _ =
 -- VIEW
 
 
+buttonStyle : Style
+buttonStyle =
+    [ bg_color gray_300
+    , border_0
+    , rounded_md
+    , text_2xl
+    , py_2
+    , Css.hover [ bg_color gray_600 ]
+    , Css.active [ bg_color gray_800 ]
+    ]
+
+
 view : Model -> Html Msg
 view model =
-    let
-        buttonStyle =
-            css
-                [ bg_color gray_300
-                , border_0
-                , rounded_md
-                , text_2xl
-                , w_64
-                , py_2
-                , Css.hover [ bg_color gray_600 ]
-                , Css.active [ bg_color gray_800 ]
-                ]
-    in
     toUnstyled <|
         main_ []
             [ div []
-                [ button [ buttonStyle, onClick SetPath ] [ text "choose folder" ]
-                , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
-                , br [] []
-                , button [ buttonStyle, onClick Svn ] [ text "status" ]
-                , br [] []
-                , div [] [ text model.message ]
-                ]
+                ([ button [ css <| buttonStyle ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
+                 , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
+                 ]
+                    ++ statusSection model
+                )
             ]
+
+
+statusSection : Model -> List (SHtml Msg)
+statusSection model =
+    if isJust model.path then
+        [ br [] []
+        , button [ css <| buttonStyle ++ [ w_32 ], onClick Svn ] [ text "status" ]
+        , br [] []
+        , div [] [ text model.message ]
+        ]
+
+    else
+        []
