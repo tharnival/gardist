@@ -5200,43 +5200,75 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{message: '...'},
+		{message: '...', path: $elm$core$Maybe$Nothing},
 		$elm$core$Platform$Cmd$none);
+};
+var $author$project$Main$UpdatePath = function (a) {
+	return {$: 'UpdatePath', a: a};
 };
 var $author$project$Main$UpdateText = function (a) {
 	return {$: 'UpdateText', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$updatePath = _Platform_incomingPort('updatePath', $elm$json$Json$Decode$string);
 var $author$project$Main$updateText = _Platform_incomingPort('updateText', $elm$json$Json$Decode$string);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$author$project$Main$updateText($author$project$Main$UpdateText)
+				$author$project$Main$updateText($author$project$Main$UpdateText),
+				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
 };
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Main$svn = _Platform_outgoingPort(
-	'svn',
+var $author$project$Main$setPath = _Platform_outgoingPort(
+	'setPath',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Main$update = F2(
-	function (msg, model) {
-		if (msg.$ === 'UpdateText') {
-			var txt = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{message: txt}),
-				$elm$core$Platform$Cmd$none);
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
 		} else {
-			return _Utils_Tuple2(
-				model,
-				$author$project$Main$svn(_Utils_Tuple0));
+			return _default;
 		}
 	});
+var $author$project$Main$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'UpdateText':
+				var txt = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{message: txt}),
+					$elm$core$Platform$Cmd$none);
+			case 'Svn':
+				return _Utils_Tuple2(
+					model,
+					$author$project$Main$svn(
+						A2($elm$core$Maybe$withDefault, '.', model.path)));
+			case 'SetPath':
+				return _Utils_Tuple2(
+					model,
+					$author$project$Main$setPath(_Utils_Tuple0));
+			default:
+				var path = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							path: $elm$core$Maybe$Just(path)
+						}),
+					$elm$core$Platform$Cmd$none);
+		}
+	});
+var $author$project$Main$SetPath = {$: 'SetPath'};
 var $author$project$Main$Svn = {$: 'Svn'};
 var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
 	function (a, b) {
@@ -5614,15 +5646,6 @@ var $elm$core$Maybe$map = F2(
 				f(value));
 		} else {
 			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
 		}
 	});
 var $rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
@@ -7251,7 +7274,6 @@ var $elm$virtual_dom$VirtualDom$property = F2(
 			_VirtualDom_noInnerHtmlOrFormAction(key),
 			_VirtualDom_noJavaScriptOrHtmlJson(value));
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute = F2(
 	function (styles, _v0) {
 		var val = _v0.a;
@@ -7831,7 +7853,7 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	}
 };
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$view = function (model) {
 	var buttonStyle = $rtfeldman$elm_css$Html$Styled$Attributes$css(
 		_List_fromArray(
@@ -7840,7 +7862,7 @@ var $author$project$Main$view = function (model) {
 				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0,
 				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md,
 				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl,
-				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32,
+				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64,
 				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2,
 				$rtfeldman$elm_css$Css$hover(
 				_List_fromArray(
@@ -7869,11 +7891,31 @@ var $author$project$Main$view = function (model) {
 							_List_fromArray(
 								[
 									buttonStyle,
+									$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$SetPath)
+								]),
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$text('choose folder')
+								])),
+							A2(
+							$rtfeldman$elm_css$Html$Styled$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$text(
+									A2($elm$core$Maybe$withDefault, 'No path specified', model.path))
+								])),
+							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+							A2(
+							$rtfeldman$elm_css$Html$Styled$button,
+							_List_fromArray(
+								[
+									buttonStyle,
 									$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
 								]),
 							_List_fromArray(
 								[
-									$rtfeldman$elm_css$Html$Styled$text('svn')
+									$rtfeldman$elm_css$Html$Styled$text('status')
 								])),
 							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
 							A2(

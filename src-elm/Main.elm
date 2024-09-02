@@ -4,7 +4,7 @@ import Browser
 import Css
 import Html exposing (Html)
 import Html.Styled exposing (br, button, div, main_, text, toUnstyled)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick)
 import Tailwind.Theme exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -25,12 +25,13 @@ main =
 
 type alias Model =
     { message : String
+    , path : Maybe String
     }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { message = "..." }, Cmd.none )
+    ( { message = "...", path = Nothing }, Cmd.none )
 
 
 
@@ -40,7 +41,13 @@ init _ =
 port updateText : (String -> msg) -> Sub msg
 
 
-port svn : () -> Cmd msg
+port svn : String -> Cmd msg
+
+
+port setPath : () -> Cmd msg
+
+
+port updatePath : (String -> msg) -> Sub msg
 
 
 
@@ -50,6 +57,8 @@ port svn : () -> Cmd msg
 type Msg
     = UpdateText String
     | Svn
+    | SetPath
+    | UpdatePath String
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -59,7 +68,23 @@ update msg model =
             ( { model | message = txt }, Cmd.none )
 
         Svn ->
-            ( model, svn () )
+            ( model, svn <| Maybe.withDefault "." model.path )
+
+        SetPath ->
+            ( model, setPath () )
+
+        UpdatePath path ->
+            ( { model | path = Just path }, Cmd.none )
+
+
+getPath : Model -> String
+getPath model =
+    case model.path of
+        Just path ->
+            path
+
+        Nothing ->
+            "."
 
 
 
@@ -70,6 +95,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ updateText UpdateText
+        , updatePath UpdatePath
         ]
 
 
@@ -86,7 +112,7 @@ view model =
                 , border_0
                 , rounded_md
                 , text_2xl
-                , w_32
+                , w_64
                 , py_2
                 , Css.hover [ bg_color gray_600 ]
                 , Css.active [ bg_color gray_800 ]
@@ -95,7 +121,10 @@ view model =
     toUnstyled <|
         main_ []
             [ div []
-                [ button [ buttonStyle, onClick Svn ] [ text "svn" ]
+                [ button [ buttonStyle, onClick SetPath ] [ text "choose folder" ]
+                , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
+                , br [] []
+                , button [ buttonStyle, onClick Svn ] [ text "status" ]
                 , br [] []
                 , div [] [ text model.message ]
                 ]

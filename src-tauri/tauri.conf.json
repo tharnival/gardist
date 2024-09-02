@@ -22,6 +22,9 @@
             "args": true
           }
         ]
+      },
+      "dialog": {
+        "open": true
       }
     },
     "bundle": {
