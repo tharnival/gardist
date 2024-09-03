@@ -5,8 +5,8 @@ const invoke = window.__TAURI__.invoke;
 const { listen } = window.__TAURI__.event;
 
 ports.svn.subscribe(async (path) => {
-  ports.updateText.send(
-    await invoke("svn", {
+  ports.updateStatus.send(
+    await invoke("svn_status", {
       path: path,
     }),
   );
@@ -17,5 +17,5 @@ ports.setPath.subscribe(async () => {
 });
 
 await listen("path_change", (event) => {
-  ports.updatePath.send(event.payload.msg);
+  ports.updatePath.send(event.payload.path);
 });

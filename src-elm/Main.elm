@@ -33,21 +33,21 @@ main =
 
 
 type alias Model =
-    { message : String
+    { message : List ( String, String )
     , path : Maybe String
     }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { message = "...", path = Nothing }, Cmd.none )
+    ( { message = [], path = Nothing }, Cmd.none )
 
 
 
 -- PORT
 
 
-port updateText : (String -> msg) -> Sub msg
+port updateStatus : (List ( String, String ) -> msg) -> Sub msg
 
 
 port svn : String -> Cmd msg
@@ -64,7 +64,7 @@ port updatePath : (Maybe String -> msg) -> Sub msg
 
 
 type Msg
-    = UpdateText String
+    = UpdateStatus (List ( String, String ))
     | Svn
     | SetPath
     | UpdatePath (Maybe String)
@@ -73,7 +73,7 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
-        UpdateText txt ->
+        UpdateStatus txt ->
             ( { model | message = txt }, Cmd.none )
 
         Svn ->
@@ -83,17 +83,12 @@ update msg model =
             ( model, setPath () )
 
         UpdatePath path ->
-            ( { model
-                | path =
-                    -- don't overwrite existing path with nothing
-                    if isJust path then
-                        path
+            if isJust path then
+                ( { model | path = path }, svn <| Maybe.withDefault "." path )
 
-                    else
-                        model.path
-              }
-            , Cmd.none
-            )
+            else
+                -- don't overwrite existing path with nothing
+                ( model, Cmd.none )
 
 
 
@@ -103,7 +98,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ updateText UpdateText
+        [ updateStatus UpdateStatus
         , updatePath UpdatePath
         ]
 
@@ -141,10 +136,15 @@ statusSection : Model -> List (SHtml Msg)
 statusSection model =
     if isJust model.path then
         [ br [] []
-        , button [ css <| buttonStyle ++ [ w_32 ], onClick Svn ] [ text "status" ]
+        , button [ css <| buttonStyle ++ [ w_64 ], onClick Svn ] [ text "update status" ]
         , br [] []
-        , div [] [ text model.message ]
         ]
+            ++ (model.message
+                    |> List.map
+                        (\( _, item ) ->
+                            div [] [ text item ]
+                        )
+               )
 
     else
         []

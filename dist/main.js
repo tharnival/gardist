@@ -5200,14 +5200,14 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{message: '...', path: $elm$core$Maybe$Nothing},
+		{message: _List_Nil, path: $elm$core$Maybe$Nothing},
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
 };
-var $author$project$Main$UpdateText = function (a) {
-	return {$: 'UpdateText', a: a};
+var $author$project$Main$UpdateStatus = function (a) {
+	return {$: 'UpdateStatus', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$null = _Json_decodeNull;
@@ -5221,12 +5221,29 @@ var $author$project$Main$updatePath = _Platform_incomingPort(
 				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
 				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
 			])));
-var $author$project$Main$updateText = _Platform_incomingPort('updateText', $elm$json$Json$Decode$string);
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$index = _Json_decodeIndex;
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Main$updateStatus = _Platform_incomingPort(
+	'updateStatus',
+	$elm$json$Json$Decode$list(
+		A2(
+			$elm$json$Json$Decode$andThen,
+			function (_v0) {
+				return A2(
+					$elm$json$Json$Decode$andThen,
+					function (_v1) {
+						return $elm$json$Json$Decode$succeed(
+							_Utils_Tuple2(_v0, _v1));
+					},
+					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$string));
+			},
+			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$string))));
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$author$project$Main$updateText($author$project$Main$UpdateText),
+				$author$project$Main$updateStatus($author$project$Main$UpdateStatus),
 				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
 };
@@ -5257,7 +5274,7 @@ var $elm$core$Maybe$withDefault = F2(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'UpdateText':
+			case 'UpdateStatus':
 				var txt = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -5275,13 +5292,12 @@ var $author$project$Main$update = F2(
 					$author$project$Main$setPath(_Utils_Tuple0));
 			default:
 				var path = msg.a;
-				return _Utils_Tuple2(
+				return $author$project$Util$isJust(path) ? _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							path: $author$project$Util$isJust(path) ? path : model.path
-						}),
-					$elm$core$Platform$Cmd$none);
+						{path: path}),
+					$author$project$Main$svn(
+						A2($elm$core$Maybe$withDefault, '.', path))) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Main$SetPath = {$: 'SetPath'};
@@ -7248,35 +7264,42 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$statusSection = function (model) {
-	return $author$project$Util$isJust(model.path) ? _List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
-			A2(
-			$rtfeldman$elm_css$Html$Styled$button,
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_Utils_ap(
-						$author$project$Main$buttonStyle,
-						_List_fromArray(
-							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32]))),
-					$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
-				]),
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$text('status')
-				])),
-			A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
-			A2(
-			$rtfeldman$elm_css$Html$Styled$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$text(model.message)
-				]))
-		]) : _List_Nil;
+	return $author$project$Util$isJust(model.path) ? _Utils_ap(
+		_List_fromArray(
+			[
+				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$button,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_Utils_ap(
+							$author$project$Main$buttonStyle,
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
+						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text('update status')
+					])),
+				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
+			]),
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var item = _v0.b;
+				return A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text(item)
+						]));
+			},
+			model.message)) : _List_Nil;
 };
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
@@ -7917,7 +7940,6 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	}
 };
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$view = function (model) {
 	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
