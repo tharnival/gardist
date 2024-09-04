@@ -9,3 +9,13 @@ isJust x =
 
         Nothing ->
             False
+
+
+fst : ( a, b ) -> a
+fst ( x, _ ) =
+    x
+
+
+snd : ( b, a ) -> a
+snd ( _, x ) =
+    x

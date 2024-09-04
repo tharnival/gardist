@@ -58,6 +58,18 @@ fn svn_remove(root: String, path: String) {
 }
 
 #[tauri::command]
+fn svn_commit(root: String, msg: String) -> Vec<(String, String)> {
+    let cwd = PathBuf::from(root.clone());
+    let _ = Command::new("svn")
+        .current_dir(cwd)
+        .args(["commit", "-m", &msg])
+        .status()
+        .expect("Failed to spawn command");
+
+    svn_status(root)
+}
+
+#[tauri::command]
 fn set_path(store: State<Store>) {
     let app_handle = store.app_handle.clone();
     FileDialogBuilder::new().pick_folder(move |path| {
@@ -86,7 +98,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            svn_status, svn_add, svn_remove, set_path
+            svn_status, svn_add, svn_remove, svn_commit, set_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

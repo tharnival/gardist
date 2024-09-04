@@ -4,9 +4,9 @@ import Browser
 import Css
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Html.Styled exposing (br, button, div, input, main_, text, toUnstyled)
+import Html.Styled exposing (br, button, div, input, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onCheck, onClick)
+import Html.Styled.Events exposing (onCheck, onClick, onInput)
 import Tailwind.Theme exposing (..)
 import Tailwind.Utilities exposing (..)
 import Util exposing (..)
@@ -36,12 +36,18 @@ main =
 type alias Model =
     { status : Dict String Bool
     , path : Maybe String
+    , commitMsg : String
     }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { status = Dict.empty, path = Nothing }, Cmd.none )
+    ( { status = Dict.empty
+      , path = Nothing
+      , commitMsg = ""
+      }
+    , Cmd.none
+    )
 
 
 
@@ -75,6 +81,13 @@ port updatePath : (Maybe String -> msg) -> Sub msg
 port updateThing : (String -> msg) -> Sub msg
 
 
+port commit :
+    { root : String
+    , msg : String
+    }
+    -> Cmd msg
+
+
 
 -- UPDATE
 
@@ -85,6 +98,8 @@ type Msg
     | SetPath
     | UpdatePath (Maybe String)
     | HandleCheck String Bool
+    | CommitMsg String
+    | Commit
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -141,6 +156,17 @@ update msg model =
                 -- don't overwrite existing path with nothing
                 ( model, Cmd.none )
 
+        CommitMsg commitMsg ->
+            ( { model | commitMsg = commitMsg }, Cmd.none )
+
+        Commit ->
+            ( { model | commitMsg = "" }
+            , commit
+                { root = Maybe.withDefault "." model.path
+                , msg = model.commitMsg
+                }
+            )
+
 
 
 -- SUBSCRIPTIONS
@@ -167,6 +193,7 @@ buttonStyle =
     , py_2
     , Css.hover [ bg_color gray_600 ]
     , Css.active [ bg_color gray_800 ]
+    , Css.disabled [ Css.hover [ bg_color gray_300 ] ]
     ]
 
 
@@ -174,6 +201,14 @@ checkboxStyle : Style
 checkboxStyle =
     [ w_4
     , h_4
+    ]
+
+
+textFieldStyle : Style
+textFieldStyle =
+    [ h_32
+    , rounded_md
+    , text_2xl
     ]
 
 
@@ -214,6 +249,22 @@ statusSection model =
                         )
                     |> List.concat
                )
+            ++ [ br [] []
+               , textarea
+                    [ css textFieldStyle
+                    , placeholder "Commit message"
+                    , value model.commitMsg
+                    , onInput CommitMsg
+                    ]
+                    []
+               , br [] []
+               , button
+                    [ css <| buttonStyle ++ [ w_32 ]
+                    , disabled <| (model.commitMsg == "") || (Dict.toList model.status |> List.any snd |> not)
+                    , onClick Commit
+                    ]
+                    [ text "commit" ]
+               ]
 
     else
         []

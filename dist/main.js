@@ -5202,7 +5202,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{path: $elm$core$Maybe$Nothing, status: $elm$core$Dict$empty},
+		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $elm$core$Dict$empty},
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$UpdatePath = function (a) {
@@ -5249,6 +5249,34 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
 };
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$commit = _Platform_outgoingPort(
+	'commit',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'msg',
+					$elm$json$Json$Encode$string($.msg)),
+					_Utils_Tuple2(
+					'root',
+					$elm$json$Json$Encode$string($.root))
+				]));
+	});
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5383,21 +5411,7 @@ var $author$project$Main$setPath = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
 var $author$project$Main$svnAdd = _Platform_outgoingPort(
 	'svnAdd',
 	function ($) {
@@ -5484,7 +5498,7 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$setPath(_Utils_Tuple0));
-			default:
+			case 'UpdatePath':
 				var path = msg.a;
 				return $author$project$Util$isJust(path) ? _Utils_Tuple2(
 					_Utils_update(
@@ -5492,6 +5506,23 @@ var $author$project$Main$update = F2(
 						{path: path}),
 					$author$project$Main$svn(
 						A2($elm$core$Maybe$withDefault, '.', path))) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'CommitMsg':
+				var commitMsg = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{commitMsg: commitMsg}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{commitMsg: ''}),
+					$author$project$Main$commit(
+						{
+							msg: model.commitMsg,
+							root: A2($elm$core$Maybe$withDefault, '.', model.path)
+						}));
 		}
 	});
 var $author$project$Main$SetPath = {$: 'SetPath'};
@@ -5582,6 +5613,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color = functi
 		color);
 };
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0 = A2($rtfeldman$elm_css$Css$property, 'border-width', '0px');
+var $rtfeldman$elm_css$Css$disabled = $rtfeldman$elm_css$Css$pseudoClass('disabled');
 var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
 	function (a, b, c, d, e) {
 		return {$: 'Color', a: a, b: b, c: c, d: d, e: e};
@@ -5620,6 +5652,15 @@ var $author$project$Main$buttonStyle = _List_fromArray(
 		_List_fromArray(
 			[
 				$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_800)
+			])),
+		$rtfeldman$elm_css$Css$disabled(
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Css$hover(
+				_List_fromArray(
+					[
+						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300)
+					]))
 			]))
 	]);
 var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
@@ -7336,6 +7377,10 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $author$project$Main$Commit = {$: 'Commit'};
+var $author$project$Main$CommitMsg = function (a) {
+	return {$: 'CommitMsg', a: a};
+};
 var $author$project$Main$HandleCheck = F2(
 	function (a, b) {
 		return {$: 'HandleCheck', a: a, b: b};
@@ -7370,6 +7415,7 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
+var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
 var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
@@ -7388,6 +7434,45 @@ var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
 		'change',
 		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
 };
+var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
+var $author$project$Util$snd = function (_v0) {
+	var x = _v0.b;
+	return x;
+};
 var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
 	return {$: 'Unstyled', a: a};
 };
@@ -7397,14 +7482,13 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
+var $author$project$Main$textFieldStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
+var $rtfeldman$elm_css$Html$Styled$textarea = $rtfeldman$elm_css$Html$Styled$node('textarea');
 var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
+var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$statusSection = function (model) {
 	return $author$project$Util$isJust(model.path) ? _Utils_ap(
@@ -7428,33 +7512,69 @@ var $author$project$Main$statusSection = function (model) {
 					])),
 				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
 			]),
-		$elm$core$List$concat(
-			A2(
-				$elm$core$List$map,
-				function (_v0) {
-					var item = _v0.a;
-					var added = _v0.b;
-					return _List_fromArray(
+		_Utils_ap(
+			$elm$core$List$concat(
+				A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var item = _v0.a;
+						var added = _v0.b;
+						return _List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$input,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$checkboxStyle),
+										$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+										$rtfeldman$elm_css$Html$Styled$Attributes$checked(added),
+										$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+										$author$project$Main$HandleCheck(item))
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text('test')
+									])),
+								$rtfeldman$elm_css$Html$Styled$text(item),
+								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
+							]);
+					},
+					$elm$core$Dict$toList(model.status))),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$textarea,
+					_List_fromArray(
 						[
-							A2(
-							$rtfeldman$elm_css$Html$Styled$input,
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$checkboxStyle),
-									$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
-									$rtfeldman$elm_css$Html$Styled$Attributes$checked(added),
-									$rtfeldman$elm_css$Html$Styled$Events$onCheck(
-									$author$project$Main$HandleCheck(item))
-								]),
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text('test')
-								])),
-							$rtfeldman$elm_css$Html$Styled$text(item),
-							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
-						]);
-				},
-				$elm$core$Dict$toList(model.status)))) : _List_Nil;
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$textFieldStyle),
+							$rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Commit message'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$value(model.commitMsg),
+							$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Main$CommitMsg)
+						]),
+					_List_Nil),
+					A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$button,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_Utils_ap(
+								$author$project$Main$buttonStyle,
+								_List_fromArray(
+									[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32]))),
+							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+							(model.commitMsg === '') || (!A2(
+								$elm$core$List$any,
+								$author$project$Util$snd,
+								$elm$core$Dict$toList(model.status)))),
+							$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Commit)
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text('commit')
+						]))
+				]))) : _List_Nil;
 };
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
