@@ -12,6 +12,14 @@ ports.svn.subscribe(async (path) => {
   );
 });
 
+ports.svnAdd.subscribe(async (args) => {
+  await invoke("svn_add", args);
+});
+
+ports.svnRemove.subscribe(async (args) => {
+  await invoke("svn_remove", args);
+});
+
 ports.setPath.subscribe(async () => {
   await invoke("set_path", {});
 });

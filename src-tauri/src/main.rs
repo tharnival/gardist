@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::path::PathBuf;
 use std::sync::mpsc;
 use tauri::api::dialog::FileDialogBuilder;
 use tauri::api::process::{Command, CommandEvent};
@@ -13,8 +14,10 @@ struct Path {
 
 #[tauri::command]
 fn svn_status(path: String) -> Vec<(String, String)> {
+    let cwd = PathBuf::from(path.clone());
     let (mut cmd, mut _child) = Command::new("svn")
-        .args(["status", &path])
+        .current_dir(cwd)
+        .args(["status"])
         .spawn()
         .expect("Failed to spawn command");
 
@@ -24,7 +27,7 @@ fn svn_status(path: String) -> Vec<(String, String)> {
         while let Some(event) = cmd.recv().await {
             if let CommandEvent::Stdout(line) = event {
                 let status = line[..7].to_string();
-                let path = line[8..].to_string();
+                let path = line[8..].trim().to_string();
                 output.push((status, path));
             }
         }
@@ -32,6 +35,26 @@ fn svn_status(path: String) -> Vec<(String, String)> {
     });
 
     rx.recv().unwrap()
+}
+
+#[tauri::command]
+fn svn_add(root: String, path: String) {
+    let cwd = PathBuf::from(root);
+    let _ = Command::new("svn")
+        .current_dir(cwd)
+        .args(["add", &path])
+        .status()
+        .expect("Failed to spawn command");
+}
+
+#[tauri::command]
+fn svn_remove(root: String, path: String) {
+    let cwd = PathBuf::from(root);
+    let _ = Command::new("svn")
+        .current_dir(cwd)
+        .args(["remove", "--keep-local", &path])
+        .status()
+        .expect("Failed to spawn command");
 }
 
 #[tauri::command]
@@ -62,7 +85,9 @@ fn main() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![svn_status, set_path])
+        .invoke_handler(tauri::generate_handler![
+            svn_status, svn_add, svn_remove, set_path
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
