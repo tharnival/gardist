@@ -5198,16 +5198,12 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{
-			commitMsg: '',
-			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist/'),
-			status: $elm$core$Dict$empty
-		},
-		$author$project$Main$svn('/home/thor/temp/svn/gardist/'));
+		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $elm$core$Dict$empty},
+		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5253,8 +5249,9 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
 };
-var $author$project$Main$Added = {$: 'Added'};
-var $author$project$Main$Modified = {$: 'Modified'};
+var $author$project$Main$Removed = {$: 'Removed'};
+var $author$project$Main$Unknown = {$: 'Unknown'};
+var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -5277,6 +5274,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -5285,7 +5283,19 @@ var $author$project$Main$commit = _Platform_outgoingPort(
 				[
 					_Utils_Tuple2(
 					'changes',
-					$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.changes)),
+					$elm$json$Json$Encode$list(
+						function ($) {
+							var a = $.a;
+							var b = $.b;
+							return A2(
+								$elm$json$Json$Encode$list,
+								$elm$core$Basics$identity,
+								_List_fromArray(
+									[
+										$elm$json$Json$Encode$string(a),
+										$elm$json$Json$Encode$bool(b)
+									]));
+						})($.changes)),
 					_Utils_Tuple2(
 					'msg',
 					$elm$json$Json$Encode$string($.msg)),
@@ -5305,6 +5315,34 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
+var $author$project$Util$fst = function (_v0) {
+	var x = _v0.a;
+	return x;
+};
+var $author$project$Util$isJust = function (x) {
+	if (x.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$Main$Added = {$: 'Added'};
+var $author$project$Main$Modified = {$: 'Modified'};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5426,35 +5464,67 @@ var $elm$core$Dict$fromList = function (assocs) {
 		$elm$core$Dict$empty,
 		assocs);
 };
-var $author$project$Util$fst = function (_v0) {
-	var x = _v0.a;
-	return x;
-};
-var $author$project$Util$isJust = function (x) {
-	if (x.$ === 'Just') {
-		return true;
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
 	} else {
-		return false;
+		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
+var $author$project$Main$parseStatus = function (status) {
+	return $elm$core$Dict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (_v0) {
+				var tags = _v0.a;
+				var path = _v0.b;
+				var changeType = function () {
+					var _v1 = $elm$core$List$head(
+						$elm$core$String$toList(tags));
+					_v1$6:
+					while (true) {
+						if (_v1.$ === 'Just') {
+							switch (_v1.a.valueOf()) {
+								case 'M':
+									return $author$project$Main$Modified;
+								case 'R':
+									return $author$project$Main$Modified;
+								case 'A':
+									return $author$project$Main$Added;
+								case '?':
+									return $author$project$Main$Added;
+								case 'D':
+									return $author$project$Main$Removed;
+								case '!':
+									return $author$project$Main$Removed;
+								default:
+									break _v1$6;
+							}
+						} else {
+							break _v1$6;
+						}
+					}
+					return $author$project$Main$Unknown;
+				}();
+				return _Utils_Tuple2(
+					path,
+					{changeType: changeType, checked: true});
+			},
+			status));
+};
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Main$setPath = _Platform_outgoingPort(
 	'setPath',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
+var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -5873,22 +5943,12 @@ var $author$project$Main$update = F2(
 		switch (msg.$) {
 			case 'UpdateStatus':
 				var status = msg.a;
-				var parsedStatus = $elm$core$Dict$fromList(
-					A2(
-						$elm$core$List$map,
-						function (_v1) {
-							var tags = _v1.a;
-							var path = _v1.b;
-							var changeType = A2($elm$core$String$startsWith, 'M', tags) ? $author$project$Main$Modified : $author$project$Main$Added;
-							return _Utils_Tuple2(
-								path,
-								{changeType: changeType, checked: true});
-						},
-						status));
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{status: parsedStatus}),
+						{
+							status: $author$project$Main$parseStatus(status)
+						}),
 					$elm$core$Platform$Cmd$none);
 			case 'Svn':
 				return _Utils_Tuple2(
@@ -5943,16 +6003,33 @@ var $author$project$Main$update = F2(
 						{commitMsg: ''}),
 					$author$project$Main$commit(
 						{
-							changes: A2(
-								$elm$core$List$map,
-								$author$project$Util$fst,
-								A2(
+							changes: function () {
+								var changeList = A2(
 									$elm$core$List$filter,
-									function (_v2) {
-										var status = _v2.b;
-										return status.checked;
+									function (_v3) {
+										var status = _v3.b;
+										return !_Utils_eq(status.changeType, $author$project$Main$Unknown);
 									},
-									$elm$core$Dict$toList(model.status))),
+									$elm$core$Dict$toList(model.status));
+								var paths = A2(
+									$elm$core$List$map,
+									$author$project$Util$fst,
+									A2(
+										$elm$core$List$filter,
+										function (_v2) {
+											var status = _v2.b;
+											return status.checked;
+										},
+										changeList));
+								var adds = A2(
+									$elm$core$List$map,
+									function (_v1) {
+										var status = _v1.b;
+										return !_Utils_eq(status.changeType, $author$project$Main$Removed);
+									},
+									changeList);
+								return A3($elm$core$List$map2, $elm$core$Tuple$pair, paths, adds);
+							}(),
 							msg: model.commitMsg,
 							root: A2($elm$core$Maybe$withDefault, '.', model.path)
 						}));
@@ -6908,7 +6985,6 @@ var $robinheghan$murmur3$Murmur3$multiplyBy = F2(
 	function (b, a) {
 		return ((a & 65535) * b) + ((((a >>> 16) * b) & 65535) << 16);
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Bitwise$or = _Bitwise_or;
 var $robinheghan$murmur3$Murmur3$rotlBy = F2(
 	function (b, a) {
@@ -7053,15 +7129,6 @@ var $rtfeldman$elm_css$Hash$fromString = function (str) {
 		_Utils_chr('_'),
 		$rtfeldman$elm_hex$Hex$toString(
 			A2($robinheghan$murmur3$Murmur3$hashString, $rtfeldman$elm_css$Hash$initialSeed, str)));
-};
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
 };
 var $rtfeldman$elm_css$Css$Preprocess$Resolve$last = function (list) {
 	last:
@@ -7814,7 +7881,6 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldm
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
 var $author$project$Main$checkboxStyle = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
@@ -7953,10 +8019,15 @@ var $author$project$Main$statusSection = function (model) {
 								$rtfeldman$elm_css$Html$Styled$text(
 								function () {
 									var _v1 = status.changeType;
-									if (_v1.$ === 'Added') {
-										return '+';
-									} else {
-										return '~';
+									switch (_v1.$) {
+										case 'Added':
+											return '+';
+										case 'Modified':
+											return '~';
+										case 'Removed':
+											return '-';
+										default:
+											return '?';
 									}
 								}()),
 								A2(

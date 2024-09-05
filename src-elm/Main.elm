@@ -36,6 +36,8 @@ main =
 type ChangeType
     = Added
     | Modified
+    | Removed
+    | Unknown
 
 
 type alias ChangeStatus =
@@ -65,27 +67,24 @@ init _ =
 -- PORT
 
 
-port updateStatus : (List ( String, String ) -> msg) -> Sub msg
-
-
 port svn : String -> Cmd msg
 
 
 port setPath : () -> Cmd msg
 
 
-port updatePath : (Maybe String -> msg) -> Sub msg
-
-
-port updateThing : (String -> msg) -> Sub msg
-
-
 port commit :
     { root : String
     , msg : String
-    , changes : List String
+    , changes : List ( String, Bool )
     }
     -> Cmd msg
+
+
+port updatePath : (Maybe String -> msg) -> Sub msg
+
+
+port updateStatus : (List ( String, String ) -> msg) -> Sub msg
 
 
 
@@ -106,28 +105,7 @@ update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         UpdateStatus status ->
-            let
-                parsedStatus =
-                    status
-                        |> List.map
-                            (\( tags, path ) ->
-                                let
-                                    changeType =
-                                        if String.startsWith "M" tags then
-                                            Modified
-
-                                        else
-                                            Added
-                                in
-                                ( path
-                                , { checked = True
-                                  , changeType = changeType
-                                  }
-                                )
-                            )
-                        |> Dict.fromList
-            in
-            ( { model | status = parsedStatus }, Cmd.none )
+            ( { model | status = parseStatus status }, Cmd.none )
 
         Svn ->
             ( model, svn <| Maybe.withDefault "." model.path )
@@ -164,12 +142,62 @@ update msg model =
                 { root = Maybe.withDefault "." model.path
                 , msg = model.commitMsg
                 , changes =
-                    model.status
-                        |> Dict.toList
-                        |> List.filter (\( _, status ) -> status.checked)
-                        |> List.map fst
+                    let
+                        changeList =
+                            model.status
+                                |> Dict.toList
+                                |> List.filter (\( _, status ) -> status.changeType /= Unknown)
+
+                        paths =
+                            changeList
+                                |> List.filter (\( _, status ) -> status.checked)
+                                |> List.map fst
+
+                        adds =
+                            changeList
+                                |> List.map (\( _, status ) -> status.changeType /= Removed)
+                    in
+                    List.map2 Tuple.pair paths adds
                 }
             )
+
+
+parseStatus : List ( String, String ) -> Dict String ChangeStatus
+parseStatus status =
+    status
+        |> List.map
+            (\( tags, path ) ->
+                let
+                    changeType =
+                        case tags |> String.toList |> List.head of
+                            Just 'M' ->
+                                Modified
+
+                            Just 'R' ->
+                                Modified
+
+                            Just 'A' ->
+                                Added
+
+                            Just '?' ->
+                                Added
+
+                            Just 'D' ->
+                                Removed
+
+                            Just '!' ->
+                                Removed
+
+                            _ ->
+                                Unknown
+                in
+                ( path
+                , { checked = True
+                  , changeType = changeType
+                  }
+                )
+            )
+        |> Dict.fromList
 
 
 
@@ -247,6 +275,12 @@ statusSection model =
 
                                     Modified ->
                                         "~"
+
+                                    Removed ->
+                                        "-"
+
+                                    Unknown ->
+                                        "?"
                                 )
                             , input
                                 [ css checkboxStyle

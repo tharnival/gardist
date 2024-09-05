@@ -38,20 +38,47 @@ fn svn_status(path: String) -> Vec<(String, String)> {
 }
 
 #[tauri::command]
-fn svn_commit(root: String, msg: String, changes: Vec<String>) -> Vec<(String, String)> {
-    println!("commit");
+fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<(String, String)> {
     let cwd = PathBuf::from(root.clone());
+
+    let adds: Vec<_> = changes
+        .clone()
+        .into_iter()
+        .filter(|(_path, add)| *add)
+        .map(|(path, _add)| path)
+        .collect();
+
     let _ = Command::new("svn")
         .current_dir(cwd.clone())
         .args(["add", "--force"])
-        .args(changes.clone())
+        .args(adds)
         .status()
         .expect("Failed to spawn command");
+
+    let removals: Vec<_> = changes
+        .clone()
+        .into_iter()
+        .filter(|(_path, add)| !*add)
+        .map(|(path, _add)| path)
+        .collect();
+
+    let _ = Command::new("svn")
+        .current_dir(cwd.clone())
+        .args(["rm", "--force"])
+        .args(removals)
+        .status()
+        .expect("Failed to spawn command");
+
+    let items: Vec<_> = changes
+        .clone()
+        .into_iter()
+        .map(|(path, _add)| path)
+        .collect();
 
     let _ = Command::new("svn")
         .current_dir(cwd)
         .args(["commit", "-m", &msg])
-        .args(changes)
+        .args(items)
         .status()
         .expect("Failed to spawn command");
 
