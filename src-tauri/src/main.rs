@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::sync::mpsc;
 use tauri::api::dialog::FileDialogBuilder;
 use tauri::api::process::{Command, CommandEvent};
-use tauri::{AppHandle, Manager, State};
+use tauri::{Manager, Window};
 
 #[derive(Clone, serde::Serialize)]
 struct Path {
@@ -59,10 +59,9 @@ fn svn_commit(root: String, msg: String, changes: Vec<String>) -> Vec<(String, S
 }
 
 #[tauri::command]
-fn set_path(store: State<Store>) {
-    let app_handle = store.app_handle.clone();
+fn set_path(window: Window) {
     FileDialogBuilder::new().pick_folder(move |path| {
-        let _ = app_handle.emit_all(
+        let _ = window.emit_all(
             "path_change",
             Path {
                 path: match path {
@@ -74,18 +73,8 @@ fn set_path(store: State<Store>) {
     });
 }
 
-struct Store {
-    app_handle: AppHandle,
-}
-
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-            app.manage(Store {
-                app_handle: app.app_handle(),
-            });
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![svn_status, svn_commit, set_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
