@@ -38,31 +38,20 @@ fn svn_status(path: String) -> Vec<(String, String)> {
 }
 
 #[tauri::command]
-fn svn_add(root: String, path: String) {
-    let cwd = PathBuf::from(root);
-    let _ = Command::new("svn")
-        .current_dir(cwd)
-        .args(["add", &path])
-        .status()
-        .expect("Failed to spawn command");
-}
-
-#[tauri::command]
-fn svn_remove(root: String, path: String) {
-    let cwd = PathBuf::from(root);
-    let _ = Command::new("svn")
-        .current_dir(cwd)
-        .args(["remove", "--keep-local", &path])
-        .status()
-        .expect("Failed to spawn command");
-}
-
-#[tauri::command]
-fn svn_commit(root: String, msg: String) -> Vec<(String, String)> {
+fn svn_commit(root: String, msg: String, changes: Vec<String>) -> Vec<(String, String)> {
+    println!("commit");
     let cwd = PathBuf::from(root.clone());
+    let _ = Command::new("svn")
+        .current_dir(cwd.clone())
+        .args(["add", "--force"])
+        .args(changes.clone())
+        .status()
+        .expect("Failed to spawn command");
+
     let _ = Command::new("svn")
         .current_dir(cwd)
         .args(["commit", "-m", &msg])
+        .args(changes)
         .status()
         .expect("Failed to spawn command");
 
@@ -97,9 +86,7 @@ fn main() {
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            svn_status, svn_add, svn_remove, svn_commit, set_path
-        ])
+        .invoke_handler(tauri::generate_handler![svn_status, svn_commit, set_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

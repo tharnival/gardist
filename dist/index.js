@@ -16,14 +16,6 @@ ports.commit.subscribe(async (args) => {
   ports.updateStatus.send(await invoke("svn_commit", args));
 });
 
-ports.svnAdd.subscribe(async (args) => {
-  await invoke("svn_add", args);
-});
-
-ports.svnRemove.subscribe(async (args) => {
-  await invoke("svn_remove", args);
-});
-
 ports.setPath.subscribe(async () => {
   await invoke("set_path", {});
 });

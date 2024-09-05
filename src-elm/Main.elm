@@ -33,8 +33,19 @@ main =
 -- MODEL
 
 
+type ChangeType
+    = Added
+    | Modified
+
+
+type alias ChangeStatus =
+    { checked : Bool
+    , changeType : ChangeType
+    }
+
+
 type alias Model =
-    { status : Dict String Bool
+    { status : Dict String ChangeStatus
     , path : Maybe String
     , commitMsg : String
     }
@@ -54,22 +65,10 @@ init _ =
 -- PORT
 
 
-type alias Change =
-    { root : String
-    , path : String
-    }
-
-
 port updateStatus : (List ( String, String ) -> msg) -> Sub msg
 
 
 port svn : String -> Cmd msg
-
-
-port svnAdd : Change -> Cmd msg
-
-
-port svnRemove : Change -> Cmd msg
 
 
 port setPath : () -> Cmd msg
@@ -84,6 +83,7 @@ port updateThing : (String -> msg) -> Sub msg
 port commit :
     { root : String
     , msg : String
+    , changes : List String
     }
     -> Cmd msg
 
@@ -111,11 +111,19 @@ update msg model =
                     status
                         |> List.map
                             (\( tags, path ) ->
-                                if String.startsWith "A" tags then
-                                    ( path, True )
+                                let
+                                    changeType =
+                                        if String.startsWith "M" tags then
+                                            Modified
 
-                                else
-                                    ( path, False )
+                                        else
+                                            Added
+                                in
+                                ( path
+                                , { checked = True
+                                  , changeType = changeType
+                                  }
+                                )
                             )
                         |> Dict.fromList
             in
@@ -127,23 +135,14 @@ update msg model =
         HandleCheck path checked ->
             let
                 newStatus =
-                    Dict.insert path checked model.status
+                    model.status
+                        |> Dict.update path (Maybe.map (\x -> { x | checked = checked }))
             in
             if checked then
-                ( { model | status = newStatus }
-                , svnAdd
-                    { root = Maybe.withDefault "." model.path
-                    , path = path
-                    }
-                )
+                ( { model | status = newStatus }, Cmd.none )
 
             else
-                ( { model | status = newStatus }
-                , svnRemove
-                    { root = Maybe.withDefault "." model.path
-                    , path = path
-                    }
-                )
+                ( { model | status = newStatus }, Cmd.none )
 
         SetPath ->
             ( model, setPath () )
@@ -164,6 +163,11 @@ update msg model =
             , commit
                 { root = Maybe.withDefault "." model.path
                 , msg = model.commitMsg
+                , changes =
+                    model.status
+                        |> Dict.toList
+                        |> List.filter (\( _, status ) -> status.checked)
+                        |> List.map fst
                 }
             )
 
@@ -235,11 +239,19 @@ statusSection model =
             ++ (model.status
                     |> Dict.toList
                     |> List.map
-                        (\( item, added ) ->
-                            [ input
+                        (\( item, status ) ->
+                            [ text
+                                (case status.changeType of
+                                    Added ->
+                                        "+"
+
+                                    Modified ->
+                                        "~"
+                                )
+                            , input
                                 [ css checkboxStyle
                                 , type_ "checkbox"
-                                , checked added
+                                , checked status.checked
                                 , onCheck (HandleCheck item)
                                 ]
                                 [ text "test" ]
@@ -260,7 +272,14 @@ statusSection model =
                , br [] []
                , button
                     [ css <| buttonStyle ++ [ w_32 ]
-                    , disabled <| (model.commitMsg == "") || (Dict.toList model.status |> List.any snd |> not)
+                    , disabled <|
+                        -- don't allow commiting if there is no message
+                        -- or no changes added
+                        (model.commitMsg == "")
+                            || (Dict.values model.status
+                                    |> List.any (\x -> x.checked)
+                                    |> not
+                               )
                     , onClick Commit
                     ]
                     [ text "commit" ]

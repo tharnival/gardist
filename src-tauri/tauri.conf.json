@@ -69,10 +69,11 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "maximized": true,
+        "height": 720,
         "resizable": true,
         "title": "Gardist",
-        "width": 800
+        "width": 1280
       }
     ]
   }
