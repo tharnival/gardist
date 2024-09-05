@@ -25,6 +25,9 @@
       },
       "dialog": {
         "open": true
+      },
+      "window": {
+        "minimize": true
       }
     },
     "bundle": {

@@ -43,6 +43,7 @@ type ChangeType
 type alias ChangeStatus =
     { checked : Bool
     , changeType : ChangeType
+    , isDir : Bool
     }
 
 
@@ -84,7 +85,14 @@ port commit :
 port updatePath : (Maybe String -> msg) -> Sub msg
 
 
-port updateStatus : (List ( String, String ) -> msg) -> Sub msg
+type alias StatusOutput =
+    { info : String
+    , path : String
+    , isDir : Bool
+    }
+
+
+port updateStatus : (List StatusOutput -> msg) -> Sub msg
 
 
 
@@ -92,7 +100,7 @@ port updateStatus : (List ( String, String ) -> msg) -> Sub msg
 
 
 type Msg
-    = UpdateStatus (List ( String, String ))
+    = UpdateStatus (List StatusOutput)
     | Svn
     | SetPath
     | UpdatePath (Maybe String)
@@ -162,14 +170,14 @@ update msg model =
             )
 
 
-parseStatus : List ( String, String ) -> Dict String ChangeStatus
+parseStatus : List StatusOutput -> Dict String ChangeStatus
 parseStatus status =
     status
         |> List.map
-            (\( tags, path ) ->
+            (\change ->
                 let
                     changeType =
-                        case tags |> String.toList |> List.head of
+                        case change.info |> String.toList |> List.head of
                             Just 'M' ->
                                 Modified
 
@@ -191,9 +199,10 @@ parseStatus status =
                             _ ->
                                 Unknown
                 in
-                ( path
+                ( change.path
                 , { checked = True
                   , changeType = changeType
+                  , isDir = change.isDir
                   }
                 )
             )
@@ -281,6 +290,13 @@ statusSection model =
 
                                     Unknown ->
                                         "?"
+                                )
+                            , text
+                                (if status.isDir then
+                                    ">"
+
+                                 else
+                                    " "
                                 )
                             , input
                                 [ css checkboxStyle

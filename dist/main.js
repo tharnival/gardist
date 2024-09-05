@@ -5198,12 +5198,16 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $elm$core$Dict$empty},
-		$elm$core$Platform$Cmd$none);
+		{
+			commitMsg: '',
+			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist/'),
+			status: $elm$core$Dict$empty
+		},
+		$author$project$Main$svn('/home/thor/temp/svn/gardist/'));
 };
 var $author$project$Main$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5224,23 +5228,29 @@ var $author$project$Main$updatePath = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
 			])));
 var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $elm$json$Json$Decode$index = _Json_decodeIndex;
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Main$updateStatus = _Platform_incomingPort(
 	'updateStatus',
 	$elm$json$Json$Decode$list(
 		A2(
 			$elm$json$Json$Decode$andThen,
-			function (_v0) {
+			function (path) {
 				return A2(
 					$elm$json$Json$Decode$andThen,
-					function (_v1) {
-						return $elm$json$Json$Decode$succeed(
-							_Utils_Tuple2(_v0, _v1));
+					function (isDir) {
+						return A2(
+							$elm$json$Json$Decode$andThen,
+							function (info) {
+								return $elm$json$Json$Decode$succeed(
+									{info: info, isDir: isDir, path: path});
+							},
+							A2($elm$json$Json$Decode$field, 'info', $elm$json$Json$Decode$string));
 					},
-					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$string));
+					A2($elm$json$Json$Decode$field, 'isDir', $elm$json$Json$Decode$bool));
 			},
-			A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$string))));
+			A2($elm$json$Json$Decode$field, 'path', $elm$json$Json$Decode$string))));
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
@@ -5274,7 +5284,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -5337,6 +5346,8 @@ var $elm$core$Maybe$map = F2(
 		}
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Tuple$pair = F2(
 	function (a, b) {
 		return _Utils_Tuple2(a, b);
@@ -5481,16 +5492,14 @@ var $author$project$Main$parseStatus = function (status) {
 	return $elm$core$Dict$fromList(
 		A2(
 			$elm$core$List$map,
-			function (_v0) {
-				var tags = _v0.a;
-				var path = _v0.b;
+			function (change) {
 				var changeType = function () {
-					var _v1 = $elm$core$List$head(
-						$elm$core$String$toList(tags));
-					_v1$6:
+					var _v0 = $elm$core$List$head(
+						$elm$core$String$toList(change.info));
+					_v0$6:
 					while (true) {
-						if (_v1.$ === 'Just') {
-							switch (_v1.a.valueOf()) {
+						if (_v0.$ === 'Just') {
+							switch (_v0.a.valueOf()) {
 								case 'M':
 									return $author$project$Main$Modified;
 								case 'R':
@@ -5504,17 +5513,17 @@ var $author$project$Main$parseStatus = function (status) {
 								case '!':
 									return $author$project$Main$Removed;
 								default:
-									break _v1$6;
+									break _v0$6;
 							}
 						} else {
-							break _v1$6;
+							break _v0$6;
 						}
 					}
 					return $author$project$Main$Unknown;
 				}();
 				return _Utils_Tuple2(
-					path,
-					{changeType: changeType, checked: true});
+					change.path,
+					{changeType: changeType, checked: true, isDir: change.isDir});
 			},
 			status));
 };
@@ -5524,7 +5533,6 @@ var $author$project$Main$setPath = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -7906,12 +7914,10 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
 var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $rtfeldman$elm_css$Html$Styled$Events$targetChecked = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -8030,6 +8036,8 @@ var $author$project$Main$statusSection = function (model) {
 											return '?';
 									}
 								}()),
+								$rtfeldman$elm_css$Html$Styled$text(
+								status.isDir ? '>' : ' '),
 								A2(
 								$rtfeldman$elm_css$Html$Styled$input,
 								_List_fromArray(
