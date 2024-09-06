@@ -302,40 +302,6 @@ statusSection model =
             ++ (model.status
                     |> Dict.toList
                     |> formatChanges
-                -- |> List.map
-                --     (\( item, status ) ->
-                --         [ text
-                --             (case status.changeType of
-                --                 Added ->
-                --                     "+"
-                --                 Modified ->
-                --                     "~"
-                --                 Removed ->
-                --                     "-"
-                --                 Unknown ->
-                --                     "?"
-                --             )
-                --         , text
-                --             (case status.fsType of
-                --                 Dir True ->
-                --                     "V"
-                --                 Dir False ->
-                --                     ">"
-                --                 File ->
-                --                     "_"
-                --             )
-                --         , input
-                --             [ css checkboxStyle
-                --             , type_ "checkbox"
-                --             , checked status.checked
-                --             , onCheck (HandleCheck item)
-                --             ]
-                --             [ text "test" ]
-                --         , text item
-                --         , br [] []
-                --         ]
-                --     )
-                -- |> List.concat
                )
             ++ [ br [] []
                , textarea
