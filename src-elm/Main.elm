@@ -4,7 +4,7 @@ import Browser
 import Css
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Html.Styled exposing (br, button, div, input, main_, text, textarea, toUnstyled)
+import Html.Styled exposing (a, br, button, div, input, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck, onClick, onInput)
 import Tailwind.Theme exposing (..)
@@ -40,10 +40,15 @@ type ChangeType
     | Unknown
 
 
+type FsType
+    = File
+    | Dir Bool
+
+
 type alias ChangeStatus =
     { checked : Bool
     , changeType : ChangeType
-    , isDir : Bool
+    , fsType : FsType
     }
 
 
@@ -107,6 +112,7 @@ type Msg
     | HandleCheck String Bool
     | CommitMsg String
     | Commit
+    | Expand String Bool
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -169,6 +175,19 @@ update msg model =
                 }
             )
 
+        Expand path expanded ->
+            let
+                newStatus =
+                    model.status
+                        |> Dict.update path
+                            (Maybe.map
+                                (\status ->
+                                    { status | fsType = Dir expanded }
+                                )
+                            )
+            in
+            ( { model | status = newStatus }, Cmd.none )
+
 
 parseStatus : List StatusOutput -> Dict String ChangeStatus
 parseStatus status =
@@ -198,11 +217,18 @@ parseStatus status =
 
                             _ ->
                                 Unknown
+
+                    fsType =
+                        if change.isDir then
+                            Dir True
+
+                        else
+                            File
                 in
                 ( change.path
                 , { checked = True
                   , changeType = changeType
-                  , isDir = change.isDir
+                  , fsType = fsType
                   }
                 )
             )
@@ -275,41 +301,41 @@ statusSection model =
         ]
             ++ (model.status
                     |> Dict.toList
-                    |> List.map
-                        (\( item, status ) ->
-                            [ text
-                                (case status.changeType of
-                                    Added ->
-                                        "+"
-
-                                    Modified ->
-                                        "~"
-
-                                    Removed ->
-                                        "-"
-
-                                    Unknown ->
-                                        "?"
-                                )
-                            , text
-                                (if status.isDir then
-                                    ">"
-
-                                 else
-                                    " "
-                                )
-                            , input
-                                [ css checkboxStyle
-                                , type_ "checkbox"
-                                , checked status.checked
-                                , onCheck (HandleCheck item)
-                                ]
-                                [ text "test" ]
-                            , text item
-                            , br [] []
-                            ]
-                        )
-                    |> List.concat
+                    |> formatChanges
+                -- |> List.map
+                --     (\( item, status ) ->
+                --         [ text
+                --             (case status.changeType of
+                --                 Added ->
+                --                     "+"
+                --                 Modified ->
+                --                     "~"
+                --                 Removed ->
+                --                     "-"
+                --                 Unknown ->
+                --                     "?"
+                --             )
+                --         , text
+                --             (case status.fsType of
+                --                 Dir True ->
+                --                     "V"
+                --                 Dir False ->
+                --                     ">"
+                --                 File ->
+                --                     "_"
+                --             )
+                --         , input
+                --             [ css checkboxStyle
+                --             , type_ "checkbox"
+                --             , checked status.checked
+                --             , onCheck (HandleCheck item)
+                --             ]
+                --             [ text "test" ]
+                --         , text item
+                --         , br [] []
+                --         ]
+                --     )
+                -- |> List.concat
                )
             ++ [ br [] []
                , textarea
@@ -337,3 +363,105 @@ statusSection model =
 
     else
         []
+
+
+formatChanges : List ( String, ChangeStatus ) -> List (SHtml Msg)
+formatChanges changes =
+    -- no relative paths can begin with '/'
+    doFormatChanges [] "/" changes
+        |> List.reverse
+        |> List.concat
+
+
+expanderStyle : Style
+expanderStyle =
+    [ w_6
+    , h_6
+    , text_base
+    ]
+
+
+indentStyle : Style
+indentStyle =
+    [ py_0
+    , px_3
+    ]
+
+
+doFormatChanges : List (List (SHtml Msg)) -> String -> List ( String, ChangeStatus ) -> List (List (SHtml Msg))
+doFormatChanges acc hidePrefix changes =
+    case changes of
+        [] ->
+            acc
+
+        ( path, status ) :: tl ->
+            if not <| String.startsWith hidePrefix path then
+                let
+                    changeType =
+                        case status.changeType of
+                            Added ->
+                                "+"
+
+                            Modified ->
+                                "~"
+
+                            Removed ->
+                                "-"
+
+                            Unknown ->
+                                "?"
+
+                    ( expander, newPrefix ) =
+                        case status.fsType of
+                            File ->
+                                ( text "", hidePrefix )
+
+                            Dir False ->
+                                ( button
+                                    [ css expanderStyle
+                                    , onClick (Expand path True)
+                                    ]
+                                    [ text ">" ]
+                                , path
+                                )
+
+                            Dir True ->
+                                ( button
+                                    [ css expanderStyle
+                                    , onClick (Expand path False)
+                                    ]
+                                    [ text "V" ]
+                                , hidePrefix
+                                )
+
+                    components =
+                        String.split "/" path
+
+                    name =
+                        components
+                            |> List.reverse
+                            |> List.head
+                            |> Maybe.withDefault ""
+
+                    indentation =
+                        List.length components - 1
+
+                    html =
+                        List.repeat indentation (a [ css indentStyle ] [])
+                            ++ [ expander
+                               , input
+                                    [ css checkboxStyle
+                                    , type_ "checkbox"
+                                    , checked status.checked
+                                    , onCheck (HandleCheck path)
+                                    ]
+                                    []
+                               , text changeType
+                               , text name
+                               , br [] []
+                               ]
+                in
+                doFormatChanges (html :: acc) newPrefix tl
+
+            else
+                doFormatChanges acc hidePrefix tl

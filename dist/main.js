@@ -5204,10 +5204,10 @@ var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			commitMsg: '',
-			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist/'),
+			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist'),
 			status: $elm$core$Dict$empty
 		},
-		$author$project$Main$svn('/home/thor/temp/svn/gardist/'));
+		$author$project$Main$svn('/home/thor/temp/svn/gardist'));
 };
 var $author$project$Main$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5258,6 +5258,9 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Main$updateStatus($author$project$Main$UpdateStatus),
 				$author$project$Main$updatePath($author$project$Main$UpdatePath)
 			]));
+};
+var $author$project$Main$Dir = function (a) {
+	return {$: 'Dir', a: a};
 };
 var $author$project$Main$Removed = {$: 'Removed'};
 var $author$project$Main$Unknown = {$: 'Unknown'};
@@ -5353,6 +5356,7 @@ var $elm$core$Tuple$pair = F2(
 		return _Utils_Tuple2(a, b);
 	});
 var $author$project$Main$Added = {$: 'Added'};
+var $author$project$Main$File = {$: 'File'};
 var $author$project$Main$Modified = {$: 'Modified'};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
@@ -5493,6 +5497,7 @@ var $author$project$Main$parseStatus = function (status) {
 		A2(
 			$elm$core$List$map,
 			function (change) {
+				var fsType = change.isDir ? $author$project$Main$Dir(true) : $author$project$Main$File;
 				var changeType = function () {
 					var _v0 = $elm$core$List$head(
 						$elm$core$String$toList(change.info));
@@ -5523,7 +5528,7 @@ var $author$project$Main$parseStatus = function (status) {
 				}();
 				return _Utils_Tuple2(
 					change.path,
-					{changeType: changeType, checked: true, isDir: change.isDir});
+					{changeType: changeType, checked: true, fsType: fsType});
 			},
 			status));
 };
@@ -6004,7 +6009,7 @@ var $author$project$Main$update = F2(
 						model,
 						{commitMsg: commitMsg}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'Commit':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -6041,6 +6046,26 @@ var $author$project$Main$update = F2(
 							msg: model.commitMsg,
 							root: A2($elm$core$Maybe$withDefault, '.', model.path)
 						}));
+			default:
+				var path = msg.a;
+				var expanded = msg.b;
+				var newStatus = A3(
+					$elm$core$Dict$update,
+					path,
+					$elm$core$Maybe$map(
+						function (status) {
+							return _Utils_update(
+								status,
+								{
+									fsType: $author$project$Main$Dir(expanded)
+								});
+						}),
+					model.status);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{status: newStatus}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Main$SetPath = {$: 'SetPath'};
@@ -7879,16 +7904,8 @@ var $author$project$Main$Commit = {$: 'Commit'};
 var $author$project$Main$CommitMsg = function (a) {
 	return {$: 'CommitMsg', a: a};
 };
-var $author$project$Main$HandleCheck = F2(
-	function (a, b) {
-		return {$: 'HandleCheck', a: a, b: b};
-	});
 var $author$project$Main$Svn = {$: 'Svn'};
 var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldman$elm_css$Css$property, 'height', '1rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
-var $author$project$Main$checkboxStyle = _List_fromArray(
-	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
 var $elm$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
@@ -7911,8 +7928,45 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 			key,
 			$elm$json$Json$Encode$bool(bool));
 	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
+var $author$project$Main$Expand = F2(
+	function (a, b) {
+		return {$: 'Expand', a: a, b: b};
+	});
+var $author$project$Main$HandleCheck = F2(
+	function (a, b) {
+		return {$: 'HandleCheck', a: a, b: b};
+	});
+var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldman$elm_css$Css$property, 'height', '1rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
+var $author$project$Main$checkboxStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
+var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6 = A2($rtfeldman$elm_css$Css$property, 'height', '1.5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'font-size', '1rem'),
+			A2($rtfeldman$elm_css$Css$property, 'line-height', '1.5rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6 = A2($rtfeldman$elm_css$Css$property, 'width', '1.5rem');
+var $author$project$Main$expanderStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base]);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.75rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-right', '0.75rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0px'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0px')
+		]));
+var $author$project$Main$indentStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3]);
 var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -7928,6 +7982,171 @@ var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
 		$rtfeldman$elm_css$Html$Styled$Events$on,
 		'change',
 		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
+};
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
+	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+		$elm$virtual_dom$VirtualDom$text(str));
+};
+var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
+var $author$project$Main$doFormatChanges = F3(
+	function (acc, hidePrefix, changes) {
+		doFormatChanges:
+		while (true) {
+			if (!changes.b) {
+				return acc;
+			} else {
+				var _v1 = changes.a;
+				var path = _v1.a;
+				var status = _v1.b;
+				var tl = changes.b;
+				if (!A2($elm$core$String$startsWith, hidePrefix, path)) {
+					var components = A2($elm$core$String$split, '/', path);
+					var indentation = $elm$core$List$length(components) - 1;
+					var name = A2(
+						$elm$core$Maybe$withDefault,
+						'',
+						$elm$core$List$head(
+							$elm$core$List$reverse(components)));
+					var changeType = function () {
+						var _v4 = status.changeType;
+						switch (_v4.$) {
+							case 'Added':
+								return '+';
+							case 'Modified':
+								return '~';
+							case 'Removed':
+								return '-';
+							default:
+								return '?';
+						}
+					}();
+					var _v2 = function () {
+						var _v3 = status.fsType;
+						if (_v3.$ === 'File') {
+							return _Utils_Tuple2(
+								$rtfeldman$elm_css$Html$Styled$text(''),
+								hidePrefix);
+						} else {
+							if (!_v3.a) {
+								return _Utils_Tuple2(
+									A2(
+										$rtfeldman$elm_css$Html$Styled$button,
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$expanderStyle),
+												$rtfeldman$elm_css$Html$Styled$Events$onClick(
+												A2($author$project$Main$Expand, path, true))
+											]),
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$text('>')
+											])),
+									path);
+							} else {
+								return _Utils_Tuple2(
+									A2(
+										$rtfeldman$elm_css$Html$Styled$button,
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$expanderStyle),
+												$rtfeldman$elm_css$Html$Styled$Events$onClick(
+												A2($author$project$Main$Expand, path, false))
+											]),
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$text('V')
+											])),
+									hidePrefix);
+							}
+						}
+					}();
+					var expander = _v2.a;
+					var newPrefix = _v2.b;
+					var html = _Utils_ap(
+						A2(
+							$elm$core$List$repeat,
+							indentation,
+							A2(
+								$rtfeldman$elm_css$Html$Styled$a,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$indentStyle)
+									]),
+								_List_Nil)),
+						_List_fromArray(
+							[
+								expander,
+								A2(
+								$rtfeldman$elm_css$Html$Styled$input,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$checkboxStyle),
+										$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+										$rtfeldman$elm_css$Html$Styled$Attributes$checked(status.checked),
+										$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+										$author$project$Main$HandleCheck(path))
+									]),
+								_List_Nil),
+								$rtfeldman$elm_css$Html$Styled$text(changeType),
+								$rtfeldman$elm_css$Html$Styled$text(name),
+								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
+							]));
+					var $temp$acc = A2($elm$core$List$cons, html, acc),
+						$temp$hidePrefix = newPrefix,
+						$temp$changes = tl;
+					acc = $temp$acc;
+					hidePrefix = $temp$hidePrefix;
+					changes = $temp$changes;
+					continue doFormatChanges;
+				} else {
+					var $temp$acc = acc,
+						$temp$hidePrefix = hidePrefix,
+						$temp$changes = tl;
+					acc = $temp$acc;
+					hidePrefix = $temp$hidePrefix;
+					changes = $temp$changes;
+					continue doFormatChanges;
+				}
+			}
+		}
+	});
+var $author$project$Main$formatChanges = function (changes) {
+	return $elm$core$List$concat(
+		$elm$core$List$reverse(
+			A3($author$project$Main$doFormatChanges, _List_Nil, '/', changes)));
 };
 var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -7956,28 +8175,11 @@ var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
 			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
 };
-var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
-var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
-};
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
-	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
-		$elm$virtual_dom$VirtualDom$text(str));
-};
-var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
 var $author$project$Main$textFieldStyle = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
 var $rtfeldman$elm_css$Html$Styled$textarea = $rtfeldman$elm_css$Html$Styled$node('textarea');
-var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
 var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
 var $elm$core$Dict$values = function (dict) {
 	return A3(
@@ -8014,49 +8216,8 @@ var $author$project$Main$statusSection = function (model) {
 				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
 			]),
 		_Utils_ap(
-			$elm$core$List$concat(
-				A2(
-					$elm$core$List$map,
-					function (_v0) {
-						var item = _v0.a;
-						var status = _v0.b;
-						return _List_fromArray(
-							[
-								$rtfeldman$elm_css$Html$Styled$text(
-								function () {
-									var _v1 = status.changeType;
-									switch (_v1.$) {
-										case 'Added':
-											return '+';
-										case 'Modified':
-											return '~';
-										case 'Removed':
-											return '-';
-										default:
-											return '?';
-									}
-								}()),
-								$rtfeldman$elm_css$Html$Styled$text(
-								status.isDir ? '>' : ' '),
-								A2(
-								$rtfeldman$elm_css$Html$Styled$input,
-								_List_fromArray(
-									[
-										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$checkboxStyle),
-										$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
-										$rtfeldman$elm_css$Html$Styled$Attributes$checked(status.checked),
-										$rtfeldman$elm_css$Html$Styled$Events$onCheck(
-										$author$project$Main$HandleCheck(item))
-									]),
-								_List_fromArray(
-									[
-										$rtfeldman$elm_css$Html$Styled$text('test')
-									])),
-								$rtfeldman$elm_css$Html$Styled$text(item),
-								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
-							]);
-					},
-					$elm$core$Dict$toList(model.status))),
+			$author$project$Main$formatChanges(
+				$elm$core$Dict$toList(model.status)),
 			_List_fromArray(
 				[
 					A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
