@@ -33,23 +33,49 @@ fn svn_status(path: String) -> Vec<StatusOutput> {
                 let info = line[..7].to_string();
                 let path = line[8..].trim().to_string();
 
-                let mut is_dir = false;
-                if info.starts_with('?') {
-                    let suffix = PathBuf::from(path.clone());
-                    let full_path = cwd.join(suffix);
-                    is_dir = match api::dir::is_dir(full_path) {
-                        Ok(true) => true,
-                        _ => false,
-                    };
-                }
+                let suffix = PathBuf::from(path.clone());
+                let full_path = cwd.clone().join(suffix);
 
-                output.push(StatusOutput { info, path, is_dir });
+                if info.starts_with('?') {
+                    for (entry, is_dir) in recursive_fs_read(&full_path) {
+                        if let Ok(Some(relative_path)) =
+                            entry.strip_prefix(&cwd).map(std::path::Path::to_str)
+                        {
+                            output.push(StatusOutput {
+                                info: info.clone(),
+                                path: relative_path.to_string(),
+                                is_dir,
+                            })
+                        }
+                    }
+                } else {
+                    output.push(StatusOutput {
+                        info: info.clone(),
+                        path,
+                        is_dir: api::dir::is_dir(full_path).unwrap_or(false),
+                    });
+                }
             }
         }
         tx.send(output)
     });
 
     rx.recv().unwrap()
+}
+
+fn recursive_fs_read(path: &PathBuf) -> Vec<(PathBuf, bool)> {
+    match api::dir::read_dir(&path, true) {
+        Ok(entries) => {
+            let mut contents = entries
+                .iter()
+                .map(|entry| recursive_fs_read(&entry.path))
+                .collect::<Vec<_>>()
+                .concat();
+            contents.push((path.clone(), true));
+            contents
+        }
+        Err(_) => vec![(path.to_path_buf(), false)],
+    }
 }
 
 #[tauri::command]
@@ -119,6 +145,13 @@ fn set_path(window: Window) {
         );
     });
 }
+
+// fn path_to_string(path: PathBuf) -> Option<String> {
+//     match path {
+//         Some(x) => x.to_str().map(str::to_string),
+//         None => None,
+//     }
+// }
 
 fn main() {
     tauri::Builder::default()

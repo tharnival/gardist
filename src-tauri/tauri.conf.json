@@ -26,6 +26,9 @@
       "dialog": {
         "open": true
       },
+      "fs": {
+        "readDir": true
+      },
       "window": {
         "minimize": true
       }
