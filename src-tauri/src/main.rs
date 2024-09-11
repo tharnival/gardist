@@ -146,13 +146,6 @@ fn set_path(window: Window) {
     });
 }
 
-// fn path_to_string(path: PathBuf) -> Option<String> {
-//     match path {
-//         Some(x) => x.to_str().map(str::to_string),
-//         None => None,
-//     }
-// }
-
 fn main() {
     tauri::Builder::default()
         .setup(|app| {

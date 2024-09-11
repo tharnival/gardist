@@ -5196,23 +5196,29 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$FileTree$Dir = F3(
+	function (a, b, c) {
+		return {$: 'Dir', a: a, b: b, c: c};
+	});
+var $author$project$FileTree$Root = {$: 'Root'};
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $author$project$FileTree$empty = A3(
+	$author$project$FileTree$Dir,
+	{changeType: $author$project$FileTree$Root, checked: true},
+	true,
+	$elm$core$Dict$empty);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{
-			commitMsg: '',
-			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist'),
-			status: $elm$core$Dict$empty
-		},
-		$author$project$Main$svn('/home/thor/temp/svn/gardist'));
+		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $author$project$FileTree$empty},
+		$elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$UpdatePath = function (a) {
+var $author$project$Types$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
 };
-var $author$project$Main$UpdateStatus = function (a) {
+var $author$project$Types$UpdateStatus = function (a) {
 	return {$: 'UpdateStatus', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5255,15 +5261,10 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$author$project$Main$updateStatus($author$project$Main$UpdateStatus),
-				$author$project$Main$updatePath($author$project$Main$UpdatePath)
+				$author$project$Main$updateStatus($author$project$Types$UpdateStatus),
+				$author$project$Main$updatePath($author$project$Types$UpdatePath)
 			]));
 };
-var $author$project$Main$Dir = function (a) {
-	return {$: 'Dir', a: a};
-};
-var $author$project$Main$Removed = {$: 'Removed'};
-var $author$project$Main$Unknown = {$: 'Unknown'};
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
@@ -5287,6 +5288,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -5316,28 +5318,6 @@ var $author$project$Main$commit = _Platform_outgoingPort(
 					$elm$json$Json$Encode$string($.root))
 				]));
 	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Util$fst = function (_v0) {
-	var x = _v0.a;
-	return x;
-};
-var $author$project$Util$isJust = function (x) {
-	if (x.$ === 'Just') {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5348,16 +5328,38 @@ var $elm$core$Maybe$map = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
 	});
-var $author$project$Main$Added = {$: 'Added'};
-var $author$project$Main$File = {$: 'File'};
-var $author$project$Main$Modified = {$: 'Modified'};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5418,7 +5420,6 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
-var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5465,108 +5466,6 @@ var $elm$core$Dict$insert = F3(
 		} else {
 			var x = _v0;
 			return x;
-		}
-	});
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$String$foldr = _String_foldr;
-var $elm$core$String$toList = function (string) {
-	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
-};
-var $author$project$Main$parseStatus = function (status) {
-	return $elm$core$Dict$fromList(
-		A2(
-			$elm$core$List$map,
-			function (change) {
-				var fsType = change.isDir ? $author$project$Main$Dir(true) : $author$project$Main$File;
-				var changeType = function () {
-					var _v0 = $elm$core$List$head(
-						$elm$core$String$toList(change.info));
-					_v0$6:
-					while (true) {
-						if (_v0.$ === 'Just') {
-							switch (_v0.a.valueOf()) {
-								case 'M':
-									return $author$project$Main$Modified;
-								case 'R':
-									return $author$project$Main$Modified;
-								case 'A':
-									return $author$project$Main$Added;
-								case '?':
-									return $author$project$Main$Added;
-								case 'D':
-									return $author$project$Main$Removed;
-								case '!':
-									return $author$project$Main$Removed;
-								default:
-									break _v0$6;
-							}
-						} else {
-							break _v0$6;
-						}
-					}
-					return $author$project$Main$Unknown;
-				}();
-				return _Utils_Tuple2(
-					change.path,
-					{changeType: changeType, checked: true, fsType: fsType});
-			},
-			status));
-};
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Main$setPath = _Platform_outgoingPort(
-	'setPath',
-	function ($) {
-		return $elm$json$Json$Encode$null;
-	});
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
 		}
 	});
 var $elm$core$Dict$getMin = function (dict) {
@@ -5942,6 +5841,49 @@ var $elm$core$Dict$update = F3(
 			return A2($elm$core$Dict$remove, targetKey, dictionary);
 		}
 	});
+var $author$project$FileTree$expand = F3(
+	function (path, newExpanded, fileTree) {
+		if (fileTree.$ === 'File') {
+			return fileTree;
+		} else {
+			var status = fileTree.a;
+			var expanded = fileTree.b;
+			var contents = fileTree.c;
+			if (!path.b) {
+				return A3($author$project$FileTree$Dir, status, newExpanded, contents);
+			} else {
+				var hd = path.a;
+				var tl = path.b;
+				return A3(
+					$author$project$FileTree$Dir,
+					status,
+					expanded,
+					A3(
+						$elm$core$Dict$update,
+						hd,
+						$elm$core$Maybe$map(
+							A2($author$project$FileTree$expand, tl, newExpanded)),
+						contents));
+			}
+		}
+	});
+var $author$project$FileTree$Added = {$: 'Added'};
+var $author$project$FileTree$Modified = {$: 'Modified'};
+var $author$project$FileTree$Removed = {$: 'Removed'};
+var $author$project$FileTree$Unknown = {$: 'Unknown'};
+var $author$project$Path$fromString = $elm$core$String$split('/');
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$FileTree$File = function (a) {
+	return {$: 'File', a: a};
+};
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5949,6 +5891,248 @@ var $elm$core$Maybe$withDefault = F2(
 			return value;
 		} else {
 			return _default;
+		}
+	});
+var $author$project$FileTree$insert = F4(
+	function (path, status, isDir, fileTree) {
+		if (fileTree.$ === 'File') {
+			return fileTree;
+		} else {
+			var parentStatus = fileTree.a;
+			var expanded = fileTree.b;
+			var contents = fileTree.c;
+			if (!path.b) {
+				return fileTree;
+			} else {
+				if (!path.b.b) {
+					var component = path.a;
+					var insertion = isDir ? A3($author$project$FileTree$Dir, status, true, $elm$core$Dict$empty) : $author$project$FileTree$File(status);
+					return A3(
+						$author$project$FileTree$Dir,
+						parentStatus,
+						expanded,
+						A3(
+							$elm$core$Dict$update,
+							component,
+							function (x) {
+								return $elm$core$Maybe$Just(
+									A2($elm$core$Maybe$withDefault, insertion, x));
+							},
+							contents));
+				} else {
+					var hd = path.a;
+					var tl = path.b;
+					var newContents = A3(
+						$elm$core$Dict$update,
+						hd,
+						function (x) {
+							return $elm$core$Maybe$Just(
+								A4(
+									$author$project$FileTree$insert,
+									tl,
+									status,
+									isDir,
+									A2(
+										$elm$core$Maybe$withDefault,
+										A3(
+											$author$project$FileTree$Dir,
+											{changeType: $author$project$FileTree$Added, checked: true},
+											true,
+											$elm$core$Dict$empty),
+										x)));
+						},
+						contents);
+					return A3($author$project$FileTree$Dir, parentStatus, expanded, newContents);
+				}
+			}
+		}
+	});
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
+var $author$project$FileTree$fromStatus = A2(
+	$elm$core$List$foldl,
+	F2(
+		function (e, acc) {
+			var changeType = function () {
+				var _v0 = $elm$core$List$head(
+					$elm$core$String$toList(e.info));
+				_v0$6:
+				while (true) {
+					if (_v0.$ === 'Just') {
+						switch (_v0.a.valueOf()) {
+							case 'M':
+								return $author$project$FileTree$Modified;
+							case 'R':
+								return $author$project$FileTree$Modified;
+							case 'A':
+								return $author$project$FileTree$Added;
+							case '?':
+								return $author$project$FileTree$Added;
+							case 'D':
+								return $author$project$FileTree$Removed;
+							case '!':
+								return $author$project$FileTree$Removed;
+							default:
+								break _v0$6;
+						}
+					} else {
+						break _v0$6;
+					}
+				}
+				return $author$project$FileTree$Unknown;
+			}();
+			var changeStatus = {changeType: changeType, checked: true};
+			return A4(
+				$author$project$FileTree$insert,
+				$author$project$Path$fromString(e.path),
+				changeStatus,
+				e.isDir,
+				acc);
+		}),
+	$author$project$FileTree$empty);
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Path$toString = $elm$core$String$join('/');
+var $author$project$FileTree$doGetCommitPaths = F2(
+	function (fileTree, path) {
+		if (fileTree.$ === 'File') {
+			var status = fileTree.a;
+			return status.checked ? _List_fromArray(
+				[
+					_Utils_Tuple2(
+					$author$project$Path$toString(
+						$elm$core$List$reverse(path)),
+					!_Utils_eq(status.changeType, $author$project$FileTree$Removed))
+				]) : _List_Nil;
+		} else {
+			var status = fileTree.a;
+			var contents = fileTree.c;
+			return status.checked ? A2(
+				$elm$core$List$cons,
+				_Utils_Tuple2(
+					$author$project$Path$toString(
+						$elm$core$List$reverse(path)),
+					!_Utils_eq(status.changeType, $author$project$FileTree$Removed)),
+				$elm$core$List$concat(
+					A2(
+						$elm$core$List$map,
+						function (_v3) {
+							var p = _v3.a;
+							var ft = _v3.b;
+							return A2(
+								$author$project$FileTree$doGetCommitPaths,
+								ft,
+								A2($elm$core$List$cons, p, path));
+						},
+						A2(
+							$elm$core$List$filter,
+							function (_v1) {
+								var ft = _v1.b;
+								if (ft.$ === 'File') {
+									var st = ft.a;
+									return st.checked;
+								} else {
+									var st = ft.a;
+									return st.checked;
+								}
+							},
+							$elm$core$Dict$toList(contents))))) : _List_Nil;
+		}
+	});
+var $elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(xs);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$FileTree$getCommitPaths = function (fileTree) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		_List_Nil,
+		$elm$core$List$tail(
+			A2($author$project$FileTree$doGetCommitPaths, fileTree, _List_Nil)));
+};
+var $author$project$Util$isJust = function (x) {
+	if (x.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Main$setPath = _Platform_outgoingPort(
+	'setPath',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
+var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $author$project$FileTree$updateCheck = F3(
+	function (path, checked, fileTree) {
+		if (fileTree.$ === 'File') {
+			var status = fileTree.a;
+			return $elm$core$List$isEmpty(path) ? $author$project$FileTree$File(
+				_Utils_update(
+					status,
+					{checked: checked})) : fileTree;
+		} else {
+			var status = fileTree.a;
+			var expanded = fileTree.b;
+			var contents = fileTree.c;
+			if (!path.b) {
+				return A3(
+					$author$project$FileTree$Dir,
+					_Utils_update(
+						status,
+						{checked: checked}),
+					expanded,
+					contents);
+			} else {
+				var hd = path.a;
+				var tl = path.b;
+				return A3(
+					$author$project$FileTree$Dir,
+					status,
+					expanded,
+					A3(
+						$elm$core$Dict$update,
+						hd,
+						$elm$core$Maybe$map(
+							A2($author$project$FileTree$updateCheck, tl, checked)),
+						contents));
+			}
 		}
 	});
 var $author$project$Main$update = F2(
@@ -5960,7 +6144,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							status: $author$project$Main$parseStatus(status)
+							status: $author$project$FileTree$fromStatus(status)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 'Svn':
@@ -5971,21 +6155,8 @@ var $author$project$Main$update = F2(
 			case 'HandleCheck':
 				var path = msg.a;
 				var checked = msg.b;
-				var newStatus = A3(
-					$elm$core$Dict$update,
-					path,
-					$elm$core$Maybe$map(
-						function (x) {
-							return _Utils_update(
-								x,
-								{checked: checked});
-						}),
-					model.status);
-				return checked ? _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{status: newStatus}),
-					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+				var newStatus = A3($author$project$FileTree$updateCheck, path, checked, model.status);
+				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{status: newStatus}),
@@ -6016,51 +6187,14 @@ var $author$project$Main$update = F2(
 						{commitMsg: ''}),
 					$author$project$Main$commit(
 						{
-							changes: function () {
-								var changeList = A2(
-									$elm$core$List$filter,
-									function (_v3) {
-										var status = _v3.b;
-										return !_Utils_eq(status.changeType, $author$project$Main$Unknown);
-									},
-									$elm$core$Dict$toList(model.status));
-								var paths = A2(
-									$elm$core$List$map,
-									$author$project$Util$fst,
-									A2(
-										$elm$core$List$filter,
-										function (_v2) {
-											var status = _v2.b;
-											return status.checked;
-										},
-										changeList));
-								var adds = A2(
-									$elm$core$List$map,
-									function (_v1) {
-										var status = _v1.b;
-										return !_Utils_eq(status.changeType, $author$project$Main$Removed);
-									},
-									changeList);
-								return A3($elm$core$List$map2, $elm$core$Tuple$pair, paths, adds);
-							}(),
+							changes: $author$project$FileTree$getCommitPaths(model.status),
 							msg: model.commitMsg,
 							root: A2($elm$core$Maybe$withDefault, '.', model.path)
 						}));
 			default:
 				var path = msg.a;
 				var expanded = msg.b;
-				var newStatus = A3(
-					$elm$core$Dict$update,
-					path,
-					$elm$core$Maybe$map(
-						function (status) {
-							return _Utils_update(
-								status,
-								{
-									fsType: $author$project$Main$Dir(expanded)
-								});
-						}),
-					model.status);
+				var newStatus = A3($author$project$FileTree$expand, path, expanded, model.status);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -6068,7 +6202,7 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$SetPath = {$: 'SetPath'};
+var $author$project$Types$SetPath = {$: 'SetPath'};
 var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
 	function (a, b, c) {
 		return {$: 'Node', a: a, b: b, c: c};
@@ -6179,7 +6313,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfel
 			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
 			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
 		]));
-var $author$project$Main$buttonStyle = _List_fromArray(
+var $author$project$Styles$buttonStyle = _List_fromArray(
 	[
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0,
@@ -6251,13 +6385,6 @@ var $elm$core$List$all = F2(
 			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
 			list);
 	});
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var $rtfeldman$elm_css$Css$Structure$compactHelp = F2(
 	function (declaration, _v0) {
 		var keyframesByName = _v0.a;
@@ -6330,14 +6457,6 @@ var $rtfeldman$elm_css$Css$Structure$compactHelp = F2(
 var $rtfeldman$elm_css$Css$Structure$Keyframes = function (a) {
 	return {$: 'Keyframes', a: a};
 };
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
 var $rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations = F2(
 	function (keyframesByName, compactedDeclarations) {
 		return A2(
@@ -6613,9 +6732,6 @@ var $rtfeldman$elm_css$Css$Structure$Output$prettyPrint = function (_v0) {
 	var namespaces = _v0.namespaces;
 	var declarations = _v0.declarations;
 	return $rtfeldman$elm_css$Css$Structure$Output$charsetToString(charset) + (A3($rtfeldman$elm_css$Css$String$mapJoin, $rtfeldman$elm_css$Css$Structure$Output$importToString, '\n', imports) + (A3($rtfeldman$elm_css$Css$String$mapJoin, $rtfeldman$elm_css$Css$Structure$Output$namespaceToString, '\n', namespaces) + (A3($rtfeldman$elm_css$Css$String$mapJoin, $rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration, '\n', declarations) + '')));
-};
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
@@ -7258,15 +7374,6 @@ var $rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule = F2(
 			return declaration;
 		}
 	});
-var $elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(xs);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
 		takeReverse:
@@ -7900,11 +8007,11 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Main$Commit = {$: 'Commit'};
-var $author$project$Main$CommitMsg = function (a) {
+var $author$project$Types$Commit = {$: 'Commit'};
+var $author$project$Types$CommitMsg = function (a) {
 	return {$: 'CommitMsg', a: a};
 };
-var $author$project$Main$Svn = {$: 'Svn'};
+var $author$project$Types$Svn = {$: 'Svn'};
 var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
 var $elm$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
@@ -7929,225 +8036,6 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
-var $author$project$Main$Expand = F2(
-	function (a, b) {
-		return {$: 'Expand', a: a, b: b};
-	});
-var $author$project$Main$HandleCheck = F2(
-	function (a, b) {
-		return {$: 'HandleCheck', a: a, b: b};
-	});
-var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldman$elm_css$Css$property, 'height', '1rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
-var $author$project$Main$checkboxStyle = _List_fromArray(
-	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
-var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6 = A2($rtfeldman$elm_css$Css$property, 'height', '1.5rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'font-size', '1rem'),
-			A2($rtfeldman$elm_css$Css$property, 'line-height', '1.5rem')
-		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6 = A2($rtfeldman$elm_css$Css$property, 'width', '1.5rem');
-var $author$project$Main$expanderStyle = _List_fromArray(
-	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base]);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.75rem'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-right', '0.75rem')
-		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0 = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0px'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0px')
-		]));
-var $author$project$Main$indentStyle = _List_fromArray(
-	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3]);
-var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $rtfeldman$elm_css$Html$Styled$Events$targetChecked = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'checked']),
-	$elm$json$Json$Decode$bool);
-var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$Events$on,
-		'change',
-		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
-};
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
-};
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
-	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
-		$elm$virtual_dom$VirtualDom$text(str));
-};
-var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
-var $author$project$Main$doFormatChanges = F3(
-	function (acc, hidePrefix, changes) {
-		doFormatChanges:
-		while (true) {
-			if (!changes.b) {
-				return acc;
-			} else {
-				var _v1 = changes.a;
-				var path = _v1.a;
-				var status = _v1.b;
-				var tl = changes.b;
-				if (!A2($elm$core$String$startsWith, hidePrefix, path)) {
-					var components = A2($elm$core$String$split, '/', path);
-					var indentation = $elm$core$List$length(components) - 1;
-					var name = A2(
-						$elm$core$Maybe$withDefault,
-						'',
-						$elm$core$List$head(
-							$elm$core$List$reverse(components)));
-					var changeType = function () {
-						var _v4 = status.changeType;
-						switch (_v4.$) {
-							case 'Added':
-								return '+';
-							case 'Modified':
-								return '~';
-							case 'Removed':
-								return '-';
-							default:
-								return '?';
-						}
-					}();
-					var _v2 = function () {
-						var _v3 = status.fsType;
-						if (_v3.$ === 'File') {
-							return _Utils_Tuple2(
-								$rtfeldman$elm_css$Html$Styled$text(''),
-								hidePrefix);
-						} else {
-							if (!_v3.a) {
-								return _Utils_Tuple2(
-									A2(
-										$rtfeldman$elm_css$Html$Styled$button,
-										_List_fromArray(
-											[
-												$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$expanderStyle),
-												$rtfeldman$elm_css$Html$Styled$Events$onClick(
-												A2($author$project$Main$Expand, path, true))
-											]),
-										_List_fromArray(
-											[
-												$rtfeldman$elm_css$Html$Styled$text('>')
-											])),
-									path);
-							} else {
-								return _Utils_Tuple2(
-									A2(
-										$rtfeldman$elm_css$Html$Styled$button,
-										_List_fromArray(
-											[
-												$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$expanderStyle),
-												$rtfeldman$elm_css$Html$Styled$Events$onClick(
-												A2($author$project$Main$Expand, path, false))
-											]),
-										_List_fromArray(
-											[
-												$rtfeldman$elm_css$Html$Styled$text('V')
-											])),
-									hidePrefix);
-							}
-						}
-					}();
-					var expander = _v2.a;
-					var newPrefix = _v2.b;
-					var html = _Utils_ap(
-						A2(
-							$elm$core$List$repeat,
-							indentation,
-							A2(
-								$rtfeldman$elm_css$Html$Styled$a,
-								_List_fromArray(
-									[
-										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$indentStyle)
-									]),
-								_List_Nil)),
-						_List_fromArray(
-							[
-								expander,
-								A2(
-								$rtfeldman$elm_css$Html$Styled$input,
-								_List_fromArray(
-									[
-										$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$checkboxStyle),
-										$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
-										$rtfeldman$elm_css$Html$Styled$Attributes$checked(status.checked),
-										$rtfeldman$elm_css$Html$Styled$Events$onCheck(
-										$author$project$Main$HandleCheck(path))
-									]),
-								_List_Nil),
-								$rtfeldman$elm_css$Html$Styled$text(changeType),
-								$rtfeldman$elm_css$Html$Styled$text(name),
-								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
-							]));
-					var $temp$acc = A2($elm$core$List$cons, html, acc),
-						$temp$hidePrefix = newPrefix,
-						$temp$changes = tl;
-					acc = $temp$acc;
-					hidePrefix = $temp$hidePrefix;
-					changes = $temp$changes;
-					continue doFormatChanges;
-				} else {
-					var $temp$acc = acc,
-						$temp$hidePrefix = hidePrefix,
-						$temp$changes = tl;
-					acc = $temp$acc;
-					hidePrefix = $temp$hidePrefix;
-					changes = $temp$changes;
-					continue doFormatChanges;
-				}
-			}
-		}
-	});
-var $author$project$Main$formatChanges = function (changes) {
-	return $elm$core$List$concat(
-		$elm$core$List$reverse(
-			A3($author$project$Main$doFormatChanges, _List_Nil, '/', changes)));
-};
 var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -8160,6 +8048,10 @@ var $rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
 			$rtfeldman$elm_css$VirtualDom$Styled$on,
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
 var $rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
@@ -8175,22 +8067,205 @@ var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
 			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
 };
+var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
+	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+		$elm$virtual_dom$VirtualDom$text(str));
+};
+var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
-var $author$project$Main$textFieldStyle = _List_fromArray(
+var $author$project$Styles$textFieldStyle = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
 var $rtfeldman$elm_css$Html$Styled$textarea = $rtfeldman$elm_css$Html$Styled$node('textarea');
 var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
-var $elm$core$Dict$values = function (dict) {
-	return A3(
-		$elm$core$Dict$foldr,
-		F3(
-			function (key, value, valueList) {
-				return A2($elm$core$List$cons, value, valueList);
-			}),
-		_List_Nil,
-		dict);
+var $author$project$Types$Expand = F2(
+	function (a, b) {
+		return {$: 'Expand', a: a, b: b};
+	});
+var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
+var $author$project$Types$HandleCheck = F2(
+	function (a, b) {
+		return {$: 'HandleCheck', a: a, b: b};
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldman$elm_css$Css$property, 'height', '1rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
+var $author$project$Styles$checkboxStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
+var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
+var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
+var $rtfeldman$elm_css$Html$Styled$Events$targetChecked = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'checked']),
+	$elm$json$Json$Decode$bool);
+var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
 };
+var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
+var $author$project$FileTree$entry = F2(
+	function (path, status) {
+		var name = A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			$elm$core$List$head(path));
+		var changeType = function () {
+			var _v0 = status.changeType;
+			switch (_v0.$) {
+				case 'Added':
+					return '+';
+				case 'Modified':
+					return '~';
+				case 'Removed':
+					return '-';
+				case 'Root':
+					return '';
+				default:
+					return '?';
+			}
+		}();
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$input,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$checkboxStyle),
+						$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$checked(status.checked),
+						$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+						$author$project$Types$HandleCheck(
+							$elm$core$List$reverse(path)))
+					]),
+				_List_Nil),
+				$rtfeldman$elm_css$Html$Styled$text(changeType),
+				$rtfeldman$elm_css$Html$Styled$text(name)
+			]);
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6 = A2($rtfeldman$elm_css$Css$property, 'height', '1.5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'font-size', '1rem'),
+			A2($rtfeldman$elm_css$Css$property, 'line-height', '1.5rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6 = A2($rtfeldman$elm_css$Css$property, 'width', '1.5rem');
+var $author$project$Styles$expanderStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base]);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.75rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-right', '0.75rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0px'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0px')
+		]));
+var $author$project$Styles$indentStyle = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3]);
+var $rtfeldman$elm_css$Html$Styled$table = $rtfeldman$elm_css$Html$Styled$node('table');
+var $rtfeldman$elm_css$Html$Styled$td = $rtfeldman$elm_css$Html$Styled$node('td');
+var $author$project$FileTree$doView = F2(
+	function (path, fileTree) {
+		if (fileTree.$ === 'File') {
+			var status = fileTree.a;
+			return A2(
+				$elm$core$List$cons,
+				A2(
+					$rtfeldman$elm_css$Html$Styled$a,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indentStyle)
+						]),
+					_List_Nil),
+				A2($author$project$FileTree$entry, path, status));
+		} else {
+			var status = fileTree.a;
+			var expanded = fileTree.b;
+			var contents = fileTree.c;
+			var inner = (!expanded) ? _List_Nil : A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var component = _v1.a;
+					var subTree = _v1.b;
+					var rec = A2(
+						$author$project$FileTree$doView,
+						A2($elm$core$List$cons, component, path),
+						subTree);
+					return A2($rtfeldman$elm_css$Html$Styled$div, _List_Nil, rec);
+				},
+				$elm$core$Dict$toList(contents));
+			var expander = expanded ? A2(
+				$rtfeldman$elm_css$Html$Styled$button,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expanderStyle),
+						$rtfeldman$elm_css$Html$Styled$Events$onClick(
+						A2(
+							$author$project$Types$Expand,
+							$elm$core$List$reverse(path),
+							false))
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text('V')
+					])) : A2(
+				$rtfeldman$elm_css$Html$Styled$button,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expanderStyle),
+						$rtfeldman$elm_css$Html$Styled$Events$onClick(
+						A2(
+							$author$project$Types$Expand,
+							$elm$core$List$reverse(path),
+							true))
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text('>')
+					]));
+			return A2(
+				$elm$core$List$cons,
+				expander,
+				_Utils_ap(
+					A2($author$project$FileTree$entry, path, status),
+					_List_fromArray(
+						[
+							A2(
+							$rtfeldman$elm_css$Html$Styled$table,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$rtfeldman$elm_css$Html$Styled$td,
+									_List_fromArray(
+										[
+											$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indentStyle)
+										]),
+									_List_Nil),
+									A2($rtfeldman$elm_css$Html$Styled$td, _List_Nil, inner)
+								]))
+						])));
+		}
+	});
+var $author$project$Path$empty = _List_Nil;
+var $author$project$FileTree$view = $author$project$FileTree$doView($author$project$Path$empty);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$statusSection = function (model) {
@@ -8204,10 +8279,10 @@ var $author$project$Main$statusSection = function (model) {
 					[
 						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_Utils_ap(
-							$author$project$Main$buttonStyle,
+							$author$project$Styles$buttonStyle,
 							_List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
-						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Svn)
+						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Svn)
 					]),
 				_List_fromArray(
 					[
@@ -8216,8 +8291,7 @@ var $author$project$Main$statusSection = function (model) {
 				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
 			]),
 		_Utils_ap(
-			$author$project$Main$formatChanges(
-				$elm$core$Dict$toList(model.status)),
+			$author$project$FileTree$view(model.status),
 			_List_fromArray(
 				[
 					A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
@@ -8225,10 +8299,10 @@ var $author$project$Main$statusSection = function (model) {
 					$rtfeldman$elm_css$Html$Styled$textarea,
 					_List_fromArray(
 						[
-							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Main$textFieldStyle),
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$textFieldStyle),
 							$rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Commit message'),
 							$rtfeldman$elm_css$Html$Styled$Attributes$value(model.commitMsg),
-							$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Main$CommitMsg)
+							$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$CommitMsg)
 						]),
 					_List_Nil),
 					A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
@@ -8238,17 +8312,13 @@ var $author$project$Main$statusSection = function (model) {
 						[
 							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_Utils_ap(
-								$author$project$Main$buttonStyle,
+								$author$project$Styles$buttonStyle,
 								_List_fromArray(
 									[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32]))),
 							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
-							(model.commitMsg === '') || (!A2(
-								$elm$core$List$any,
-								function (x) {
-									return x.checked;
-								},
-								$elm$core$Dict$values(model.status)))),
-							$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$Commit)
+							(model.commitMsg === '') || $elm$core$List$isEmpty(
+								$author$project$FileTree$getCommitPaths(model.status))),
+							$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Commit)
 						]),
 					_List_fromArray(
 						[
@@ -8876,10 +8946,10 @@ var $author$project$Main$view = function (model) {
 									[
 										$rtfeldman$elm_css$Html$Styled$Attributes$css(
 										_Utils_ap(
-											$author$project$Main$buttonStyle,
+											$author$project$Styles$buttonStyle,
 											_List_fromArray(
 												[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
-										$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Main$SetPath)
+										$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$SetPath)
 									]),
 								_List_fromArray(
 									[
