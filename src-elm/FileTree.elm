@@ -1,10 +1,11 @@
-module FileTree exposing (ChangeStatus, FileTree, empty, expand, fromStatus, getCommitPaths, insert, updateCheck, view)
+module FileTree exposing (FileTree, empty, expand, fromStatus, getCommitPaths, insert, updateCheck, view)
 
 import Dict exposing (Dict)
 import Html.Styled as SHtml exposing (a, button, div, input, td, text)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Path exposing (Path)
+import Ports exposing (StatusOutput)
 import Styles exposing (..)
 import Tailwind.Utilities exposing (..)
 import Types exposing (..)

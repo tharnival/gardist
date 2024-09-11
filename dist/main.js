@@ -5225,7 +5225,7 @@ var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$updatePath = _Platform_incomingPort(
+var $author$project$Ports$updatePath = _Platform_incomingPort(
 	'updatePath',
 	$elm$json$Json$Decode$oneOf(
 		_List_fromArray(
@@ -5237,7 +5237,7 @@ var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$updateStatus = _Platform_incomingPort(
+var $author$project$Ports$updateStatus = _Platform_incomingPort(
 	'updateStatus',
 	$elm$json$Json$Decode$list(
 		A2(
@@ -5261,8 +5261,8 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$author$project$Main$updateStatus($author$project$Types$UpdateStatus),
-				$author$project$Main$updatePath($author$project$Types$UpdatePath)
+				$author$project$Ports$updateStatus($author$project$Types$UpdateStatus),
+				$author$project$Ports$updatePath($author$project$Types$UpdatePath)
 			]));
 };
 var $elm$json$Json$Encode$bool = _Json_wrap;
@@ -5289,7 +5289,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$commit = _Platform_outgoingPort(
+var $author$project$Ports$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
 		return $elm$json$Json$Encode$object(
@@ -6086,12 +6086,12 @@ var $author$project$Util$isJust = function (x) {
 	}
 };
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Main$setPath = _Platform_outgoingPort(
+var $author$project$Ports$setPath = _Platform_outgoingPort(
 	'setPath',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Main$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $author$project$Ports$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -6150,7 +6150,7 @@ var $author$project$Main$update = F2(
 			case 'Svn':
 				return _Utils_Tuple2(
 					model,
-					$author$project$Main$svn(
+					$author$project$Ports$svn(
 						A2($elm$core$Maybe$withDefault, '.', model.path)));
 			case 'HandleCheck':
 				var path = msg.a;
@@ -6164,14 +6164,14 @@ var $author$project$Main$update = F2(
 			case 'SetPath':
 				return _Utils_Tuple2(
 					model,
-					$author$project$Main$setPath(_Utils_Tuple0));
+					$author$project$Ports$setPath(_Utils_Tuple0));
 			case 'UpdatePath':
 				var path = msg.a;
 				return $author$project$Util$isJust(path) ? _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{path: path}),
-					$author$project$Main$svn(
+					$author$project$Ports$svn(
 						A2($elm$core$Maybe$withDefault, '.', path))) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'CommitMsg':
 				var commitMsg = msg.a;
@@ -6185,7 +6185,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{commitMsg: ''}),
-					$author$project$Main$commit(
+					$author$project$Ports$commit(
 						{
 							changes: $author$project$FileTree$getCommitPaths(model.status),
 							msg: model.commitMsg,

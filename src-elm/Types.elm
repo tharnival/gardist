@@ -2,6 +2,7 @@ module Types exposing (..)
 
 import Html.Styled
 import Path exposing (..)
+import Ports exposing (StatusOutput)
 
 
 type Msg
@@ -13,13 +14,6 @@ type Msg
     | CommitMsg String
     | Commit
     | Expand Path Bool
-
-
-type alias StatusOutput =
-    { info : String
-    , path : String
-    , isDir : Bool
-    }
 
 
 type alias SHtml x =

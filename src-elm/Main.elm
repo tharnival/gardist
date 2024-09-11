@@ -1,4 +1,4 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Browser
 import FileTree exposing (FileTree)
@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Html.Styled exposing (br, button, div, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
+import Ports exposing (..)
 import Styles exposing (..)
 import Tailwind.Theme exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -41,30 +42,6 @@ init _ =
       }
     , Cmd.none
     )
-
-
-
--- PORT
-
-
-port svn : String -> Cmd msg
-
-
-port setPath : () -> Cmd msg
-
-
-port commit :
-    { root : String
-    , msg : String
-    , changes : List ( String, Bool )
-    }
-    -> Cmd msg
-
-
-port updatePath : (Maybe String -> msg) -> Sub msg
-
-
-port updateStatus : (List StatusOutput -> msg) -> Sub msg
 
 
 
