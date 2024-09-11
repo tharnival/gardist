@@ -118,7 +118,7 @@ fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<St
 
     let _ = Command::new("svn")
         .current_dir(cwd)
-        .args(["commit", "-m", &msg])
+        .args(["commit", "--force-log", "-m", &msg])
         .args(items)
         .status()
         .expect("Failed to spawn command");

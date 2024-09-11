@@ -11,10 +11,12 @@ empty =
 
 
 fromString : String -> Path
-fromString =
-    String.split "/"
+fromString str =
+    String.replace "\\" "/" str
+        |> String.split "/"
 
 
 toString : Path -> String
 toString =
+    -- Windows command line also accepts '/' for paths
     String.join "/"

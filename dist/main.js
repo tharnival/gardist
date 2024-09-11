@@ -5871,7 +5871,19 @@ var $author$project$FileTree$Added = {$: 'Added'};
 var $author$project$FileTree$Modified = {$: 'Modified'};
 var $author$project$FileTree$Removed = {$: 'Removed'};
 var $author$project$FileTree$Unknown = {$: 'Unknown'};
-var $author$project$Path$fromString = $elm$core$String$split('/');
+var $elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			$elm$core$String$join,
+			after,
+			A2($elm$core$String$split, before, string));
+	});
+var $author$project$Path$fromString = function (str) {
+	return A2(
+		$elm$core$String$split,
+		'/',
+		A3($elm$core$String$replace, '\\', '/', str));
+};
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -8667,13 +8679,6 @@ var $elm$core$Dict$foldl = F3(
 				continue foldl;
 			}
 		}
-	});
-var $elm$core$String$replace = F3(
-	function (before, after, string) {
-		return A2(
-			$elm$core$String$join,
-			after,
-			A2($elm$core$String$split, before, string));
 	});
 var $rtfeldman$elm_css$VirtualDom$Styled$styleToDeclaration = F3(
 	function (template, classname, declaration) {
