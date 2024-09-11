@@ -9,8 +9,8 @@ type alias Style =
     List Css.Style
 
 
-buttonStyle : Style
-buttonStyle =
+button : Style
+button =
     [ bg_color gray_300
     , border_0
     , rounded_md
@@ -22,31 +22,31 @@ buttonStyle =
     ]
 
 
-textFieldStyle : Style
-textFieldStyle =
+textField : Style
+textField =
     [ h_32
     , rounded_md
     , text_2xl
     ]
 
 
-checkboxStyle : Style
-checkboxStyle =
+checkbox : Style
+checkbox =
     [ w_4
     , h_4
     ]
 
 
-expanderStyle : Style
-expanderStyle =
+expander : Style
+expander =
     [ w_6
     , h_6
     , text_base
     ]
 
 
-indentStyle : Style
-indentStyle =
+indent : Style
+indent =
     [ py_0
     , px_3
     ]

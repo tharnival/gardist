@@ -1,7 +1,7 @@
 module Types exposing (..)
 
 import Html.Styled
-import Path exposing (..)
+import Path exposing (Path)
 import Ports exposing (StatusOutput)
 
 

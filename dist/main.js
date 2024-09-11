@@ -6313,7 +6313,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfel
 			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
 			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
 		]));
-var $author$project$Styles$buttonStyle = _List_fromArray(
+var $author$project$Styles$button = _List_fromArray(
 	[
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_0,
@@ -8085,7 +8085,7 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
-var $author$project$Styles$textFieldStyle = _List_fromArray(
+var $author$project$Styles$textField = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
 var $rtfeldman$elm_css$Html$Styled$textarea = $rtfeldman$elm_css$Html$Styled$node('textarea');
 var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
@@ -8100,7 +8100,7 @@ var $author$project$Types$HandleCheck = F2(
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4 = A2($rtfeldman$elm_css$Css$property, 'height', '1rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldman$elm_css$Css$property, 'width', '1rem');
-var $author$project$Styles$checkboxStyle = _List_fromArray(
+var $author$project$Styles$checkbox = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
 var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
 var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
@@ -8143,7 +8143,7 @@ var $author$project$FileTree$entry = F2(
 				$rtfeldman$elm_css$Html$Styled$input,
 				_List_fromArray(
 					[
-						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$checkboxStyle),
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$checkbox),
 						$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
 						$rtfeldman$elm_css$Html$Styled$Attributes$checked(status.checked),
 						$rtfeldman$elm_css$Html$Styled$Events$onCheck(
@@ -8163,7 +8163,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base = $rtfe
 			A2($rtfeldman$elm_css$Css$property, 'line-height', '1.5rem')
 		]));
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6 = A2($rtfeldman$elm_css$Css$property, 'width', '1.5rem');
-var $author$project$Styles$expanderStyle = _List_fromArray(
+var $author$project$Styles$expander = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_6, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_base]);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
 	_List_fromArray(
@@ -8177,7 +8177,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0 = $rtfeldman
 			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0px'),
 			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0px')
 		]));
-var $author$project$Styles$indentStyle = _List_fromArray(
+var $author$project$Styles$indent = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3]);
 var $rtfeldman$elm_css$Html$Styled$table = $rtfeldman$elm_css$Html$Styled$node('table');
 var $rtfeldman$elm_css$Html$Styled$td = $rtfeldman$elm_css$Html$Styled$node('td');
@@ -8191,7 +8191,7 @@ var $author$project$FileTree$doView = F2(
 					$rtfeldman$elm_css$Html$Styled$a,
 					_List_fromArray(
 						[
-							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indentStyle)
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indent)
 						]),
 					_List_Nil),
 				A2($author$project$FileTree$entry, path, status));
@@ -8215,7 +8215,7 @@ var $author$project$FileTree$doView = F2(
 				$rtfeldman$elm_css$Html$Styled$button,
 				_List_fromArray(
 					[
-						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expanderStyle),
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expander),
 						$rtfeldman$elm_css$Html$Styled$Events$onClick(
 						A2(
 							$author$project$Types$Expand,
@@ -8229,7 +8229,7 @@ var $author$project$FileTree$doView = F2(
 				$rtfeldman$elm_css$Html$Styled$button,
 				_List_fromArray(
 					[
-						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expanderStyle),
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$expander),
 						$rtfeldman$elm_css$Html$Styled$Events$onClick(
 						A2(
 							$author$project$Types$Expand,
@@ -8256,7 +8256,7 @@ var $author$project$FileTree$doView = F2(
 									$rtfeldman$elm_css$Html$Styled$td,
 									_List_fromArray(
 										[
-											$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indentStyle)
+											$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$indent)
 										]),
 									_List_Nil),
 									A2($rtfeldman$elm_css$Html$Styled$td, _List_Nil, inner)
@@ -8279,7 +8279,7 @@ var $author$project$Main$statusSection = function (model) {
 					[
 						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_Utils_ap(
-							$author$project$Styles$buttonStyle,
+							$author$project$Styles$button,
 							_List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
 						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Svn)
@@ -8299,7 +8299,7 @@ var $author$project$Main$statusSection = function (model) {
 					$rtfeldman$elm_css$Html$Styled$textarea,
 					_List_fromArray(
 						[
-							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$textFieldStyle),
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$textField),
 							$rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Commit message'),
 							$rtfeldman$elm_css$Html$Styled$Attributes$value(model.commitMsg),
 							$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$CommitMsg)
@@ -8312,7 +8312,7 @@ var $author$project$Main$statusSection = function (model) {
 						[
 							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_Utils_ap(
-								$author$project$Styles$buttonStyle,
+								$author$project$Styles$button,
 								_List_fromArray(
 									[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32]))),
 							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
@@ -8946,7 +8946,7 @@ var $author$project$Main$view = function (model) {
 									[
 										$rtfeldman$elm_css$Html$Styled$Attributes$css(
 										_Utils_ap(
-											$author$project$Styles$buttonStyle,
+											$author$project$Styles$button,
 											_List_fromArray(
 												[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64]))),
 										$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$SetPath)

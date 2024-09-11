@@ -7,7 +7,7 @@ import Html.Styled exposing (br, button, div, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
 import Ports exposing (..)
-import Styles exposing (..)
+import Styles
 import Tailwind.Theme exposing (..)
 import Tailwind.Utilities exposing (..)
 import Types exposing (..)
@@ -118,7 +118,7 @@ view model =
     toUnstyled <|
         main_ []
             [ div []
-                ([ button [ css <| buttonStyle ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
+                ([ button [ css <| Styles.button ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
                  , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
                  ]
                     ++ statusSection model
@@ -130,13 +130,13 @@ statusSection : Model -> List (SHtml Msg)
 statusSection model =
     if isJust model.path then
         [ br [] []
-        , button [ css <| buttonStyle ++ [ w_64 ], onClick Svn ] [ text "update status" ]
+        , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]
         , br [] []
         ]
             ++ FileTree.view model.status
             ++ [ br [] []
                , textarea
-                    [ css textFieldStyle
+                    [ css Styles.textField
                     , placeholder "Commit message"
                     , value model.commitMsg
                     , onInput CommitMsg
@@ -144,7 +144,7 @@ statusSection model =
                     []
                , br [] []
                , button
-                    [ css <| buttonStyle ++ [ w_32 ]
+                    [ css <| Styles.button ++ [ w_32 ]
                     , disabled <|
                         -- don't allow commiting if there is no message
                         -- or no changes added

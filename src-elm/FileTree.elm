@@ -6,7 +6,7 @@ import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Path exposing (Path)
 import Ports exposing (StatusOutput)
-import Styles exposing (..)
+import Styles
 import Tailwind.Utilities exposing (..)
 import Types exposing (..)
 
@@ -211,7 +211,7 @@ doView : Path -> FileTree -> List (SHtml Msg)
 doView path fileTree =
     case fileTree of
         File status ->
-            a [ css indentStyle ] []
+            a [ css Styles.indent ] []
                 :: entry path status
 
         Dir status expanded contents ->
@@ -235,14 +235,14 @@ doView path fileTree =
                 expander =
                     if expanded then
                         button
-                            [ css expanderStyle
+                            [ css Styles.expander
                             , onClick (Expand (List.reverse path) False)
                             ]
                             [ text "V" ]
 
                     else
                         button
-                            [ css expanderStyle
+                            [ css Styles.expander
                             , onClick (Expand (List.reverse path) True)
                             ]
                             [ text ">" ]
@@ -250,7 +250,7 @@ doView path fileTree =
             expander
                 :: entry path status
                 ++ [ SHtml.table []
-                        [ td [ css indentStyle ] []
+                        [ td [ css Styles.indent ] []
                         , td [] inner
                         ]
                    ]
@@ -282,7 +282,7 @@ entry path status =
                     "?"
     in
     [ input
-        [ css checkboxStyle
+        [ css Styles.checkbox
         , type_ "checkbox"
         , checked status.checked
         , onCheck (HandleCheck <| List.reverse path)
