@@ -95,13 +95,38 @@ updateCheck path checked fileTree =
         Dir status expanded contents ->
             case path of
                 [] ->
-                    Dir { status | checked = checked } expanded contents
+                    let
+                        newContents =
+                            contents
+                                |> Dict.map
+                                    (\_ -> recursiveCheck checked)
+                    in
+                    Dir { status | checked = checked } expanded newContents
 
                 hd :: tl ->
                     contents
                         |> Dict.update hd
                             (Maybe.map (updateCheck tl checked))
-                        |> Dir status expanded
+                        |> Dir
+                            -- any parent directory will have to be checked
+                            { status | checked = True }
+                            expanded
+
+
+recursiveCheck : Bool -> FileTree -> FileTree
+recursiveCheck checked fileTree =
+    case fileTree of
+        File status ->
+            File { status | checked = checked }
+
+        Dir status expanded contents ->
+            let
+                newContents =
+                    contents
+                        |> Dict.map
+                            (\_ -> recursiveCheck checked)
+            in
+            Dir { status | checked = checked } expanded newContents
 
 
 getCommitPaths : FileTree -> List ( String, Bool )

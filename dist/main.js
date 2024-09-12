@@ -5208,12 +5208,16 @@ var $author$project$FileTree$empty = A3(
 	{changeType: $author$project$FileTree$Root, checked: true},
 	true,
 	$elm$core$Dict$empty);
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Ports$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $author$project$FileTree$empty},
-		$elm$core$Platform$Cmd$none);
+		{
+			commitMsg: '',
+			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist'),
+			status: $author$project$FileTree$empty
+		},
+		$author$project$Ports$svn('/home/thor/temp/svn/gardist'));
 };
 var $author$project$Types$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5288,7 +5292,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Ports$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -6097,13 +6100,14 @@ var $author$project$Util$isJust = function (x) {
 		return false;
 	}
 };
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Ports$setPath = _Platform_outgoingPort(
 	'setPath',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Ports$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -6111,6 +6115,52 @@ var $elm$core$List$isEmpty = function (xs) {
 		return false;
 	}
 };
+var $elm$core$Dict$map = F2(
+	function (func, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				A2(func, key, value),
+				A2($elm$core$Dict$map, func, left),
+				A2($elm$core$Dict$map, func, right));
+		}
+	});
+var $author$project$FileTree$recursiveCheck = F2(
+	function (checked, fileTree) {
+		if (fileTree.$ === 'File') {
+			var status = fileTree.a;
+			return $author$project$FileTree$File(
+				_Utils_update(
+					status,
+					{checked: checked}));
+		} else {
+			var status = fileTree.a;
+			var expanded = fileTree.b;
+			var contents = fileTree.c;
+			var newContents = A2(
+				$elm$core$Dict$map,
+				function (_v1) {
+					return $author$project$FileTree$recursiveCheck(checked);
+				},
+				contents);
+			return A3(
+				$author$project$FileTree$Dir,
+				_Utils_update(
+					status,
+					{checked: checked}),
+				expanded,
+				newContents);
+		}
+	});
 var $author$project$FileTree$updateCheck = F3(
 	function (path, checked, fileTree) {
 		if (fileTree.$ === 'File') {
@@ -6124,19 +6174,27 @@ var $author$project$FileTree$updateCheck = F3(
 			var expanded = fileTree.b;
 			var contents = fileTree.c;
 			if (!path.b) {
+				var newContents = A2(
+					$elm$core$Dict$map,
+					function (_v2) {
+						return $author$project$FileTree$recursiveCheck(checked);
+					},
+					contents);
 				return A3(
 					$author$project$FileTree$Dir,
 					_Utils_update(
 						status,
 						{checked: checked}),
 					expanded,
-					contents);
+					newContents);
 			} else {
 				var hd = path.a;
 				var tl = path.b;
 				return A3(
 					$author$project$FileTree$Dir,
-					status,
+					_Utils_update(
+						status,
+						{checked: true}),
 					expanded,
 					A3(
 						$elm$core$Dict$update,
