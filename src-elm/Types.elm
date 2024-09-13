@@ -9,6 +9,8 @@ type Msg
     = UpdateStatus (List StatusOutput)
     | Svn
     | SetPath
+    | SetRepo String
+    | Checkout
     | UpdatePath (Maybe String)
     | HandleCheck Path Bool
     | CommitMsg String

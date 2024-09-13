@@ -79,6 +79,19 @@ fn recursive_fs_read(path: &PathBuf) -> Vec<(PathBuf, bool)> {
 }
 
 #[tauri::command]
+fn svn_checkout(root: String, repo: String) -> Vec<StatusOutput> {
+    let cwd = PathBuf::from(root.clone());
+
+    let _ = Command::new("svn")
+        .current_dir(cwd)
+        .args(["checkout", &repo, "."])
+        .status()
+        .expect("Failed to spawn command");
+
+    svn_status(root)
+}
+
+#[tauri::command]
 fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
@@ -168,7 +181,11 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            svn_status, svn_commit, svn_revert, set_path
+            svn_status,
+            svn_checkout,
+            svn_commit,
+            svn_revert,
+            set_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

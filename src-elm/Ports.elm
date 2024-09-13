@@ -7,6 +7,13 @@ port svn : String -> Cmd msg
 port setPath : () -> Cmd msg
 
 
+port checkout :
+    { root : String
+    , repo : String
+    }
+    -> Cmd msg
+
+
 port commit :
     { root : String
     , msg : String

@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import FileTree exposing (FileTree)
 import Html exposing (Html)
-import Html.Styled exposing (br, button, div, main_, text, textarea, toUnstyled)
+import Html.Styled exposing (br, button, div, input, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
 import Ports exposing (..)
@@ -30,6 +30,7 @@ main =
 type alias Model =
     { status : FileTree
     , path : Maybe String
+    , repo : String
     , commitMsg : String
     }
 
@@ -38,6 +39,7 @@ init : () -> ( Model, Cmd msg )
 init _ =
     ( { status = FileTree.empty
       , path = Nothing
+      , repo = ""
       , commitMsg = ""
       }
     , Cmd.none
@@ -67,6 +69,17 @@ update msg model =
 
         SetPath ->
             ( model, setPath () )
+
+        SetRepo content ->
+            ( { model | repo = content }, Cmd.none )
+
+        Checkout ->
+            ( model
+            , checkout
+                { root = Maybe.withDefault "." model.path
+                , repo = model.repo
+                }
+            )
 
         UpdatePath path ->
             if isJust path then
@@ -139,7 +152,9 @@ view model =
 statusSection : Model -> List (SHtml Msg)
 statusSection model =
     if isJust model.path then
-        [ br [] []
+        [ button [ css <| Styles.button ++ [ w_32, mr_3, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
+        , input [ css <| Styles.text, type_ "text", onInput SetRepo ] []
+        , br [] []
         , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]
         , br [] []
         ]

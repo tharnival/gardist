@@ -5212,7 +5212,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $author$project$FileTree$empty},
+		{commitMsg: '', path: $elm$core$Maybe$Nothing, repo: '', status: $author$project$FileTree$empty},
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Types$UpdatePath = function (a) {
@@ -5265,16 +5265,6 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Ports$updatePath($author$project$Types$UpdatePath)
 			]));
 };
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -5289,6 +5279,30 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Ports$checkout = _Platform_outgoingPort(
+	'checkout',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'repo',
+					$elm$json$Json$Encode$string($.repo)),
+					_Utils_Tuple2(
+					'root',
+					$elm$json$Json$Encode$string($.root))
+				]));
+	});
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
 var $author$project$Ports$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -6249,6 +6263,21 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Ports$setPath(_Utils_Tuple0));
+			case 'SetRepo':
+				var content = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{repo: content}),
+					$elm$core$Platform$Cmd$none);
+			case 'Checkout':
+				return _Utils_Tuple2(
+					model,
+					$author$project$Ports$checkout(
+						{
+							repo: model.repo,
+							root: A2($elm$core$Maybe$withDefault, '.', model.path)
+						}));
 			case 'UpdatePath':
 				var path = msg.a;
 				return $author$project$Util$isJust(path) ? _Utils_Tuple2(
@@ -8102,11 +8131,15 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $author$project$Types$Checkout = {$: 'Checkout'};
 var $author$project$Types$Commit = {$: 'Commit'};
 var $author$project$Types$CommitMsg = function (a) {
 	return {$: 'CommitMsg', a: a};
 };
 var $author$project$Types$Revert = {$: 'Revert'};
+var $author$project$Types$SetRepo = function (a) {
+	return {$: 'SetRepo', a: a};
+};
 var $author$project$Types$Svn = {$: 'Svn'};
 var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
 var $elm$virtual_dom$VirtualDom$property = F2(
@@ -8132,7 +8165,11 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
+var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '1.25rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$ml_3 = A2($rtfeldman$elm_css$Css$property, 'margin-left', '0.75rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3 = A2($rtfeldman$elm_css$Css$property, 'margin-right', '0.75rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3 = A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.75rem');
 var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -8181,10 +8218,13 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $author$project$Styles$text = _List_fromArray(
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
 var $author$project$Styles$textField = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
 var $rtfeldman$elm_css$Html$Styled$textarea = $rtfeldman$elm_css$Html$Styled$node('textarea');
+var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
 var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
 var $author$project$Types$Expand = F2(
 	function (a, b) {
@@ -8200,7 +8240,6 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4 = A2($rtfeldm
 var $author$project$Styles$checkbox = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_4, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_4]);
 var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
-var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
 var $rtfeldman$elm_css$Html$Styled$Events$targetChecked = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -8212,7 +8251,6 @@ var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
 		'change',
 		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
 };
-var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
 var $author$project$FileTree$entry = F2(
 	function (path, status) {
 		var name = A2(
@@ -8369,6 +8407,30 @@ var $author$project$Main$statusSection = function (model) {
 	return $author$project$Util$isJust(model.path) ? _Utils_ap(
 		_List_fromArray(
 			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$button,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_Utils_ap(
+							$author$project$Styles$button,
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5]))),
+						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Checkout)
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text('checkout')
+					])),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$input,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$text),
+						$rtfeldman$elm_css$Html$Styled$Attributes$type_('text'),
+						$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$SetRepo)
+					]),
+				_List_Nil),
 				A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
 				A2(
 				$rtfeldman$elm_css$Html$Styled$button,

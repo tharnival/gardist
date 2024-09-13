@@ -22,6 +22,13 @@ button =
     ]
 
 
+text : Style
+text =
+    [ rounded_md
+    , text_2xl
+    ]
+
+
 textField : Style
 textField =
     [ h_32
