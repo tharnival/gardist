@@ -5218,6 +5218,9 @@ var $author$project$Main$init = function (_v0) {
 var $author$project$Types$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
 };
+var $author$project$Types$UpdateRepo = function (a) {
+	return {$: 'UpdateRepo', a: a};
+};
 var $author$project$Types$UpdateStatus = function (a) {
 	return {$: 'UpdateStatus', a: a};
 };
@@ -5227,6 +5230,14 @@ var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Ports$updatePath = _Platform_incomingPort(
 	'updatePath',
+	$elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+			])));
+var $author$project$Ports$updateRepo = _Platform_incomingPort(
+	'updateRepo',
 	$elm$json$Json$Decode$oneOf(
 		_List_fromArray(
 			[
@@ -5262,7 +5273,8 @@ var $author$project$Main$subscriptions = function (_v0) {
 		_List_fromArray(
 			[
 				$author$project$Ports$updateStatus($author$project$Types$UpdateStatus),
-				$author$project$Ports$updatePath($author$project$Types$UpdatePath)
+				$author$project$Ports$updatePath($author$project$Types$UpdatePath),
+				$author$project$Ports$updateRepo($author$project$Types$UpdateRepo)
 			]));
 };
 var $elm$json$Json$Encode$object = function (pairs) {
@@ -6286,6 +6298,18 @@ var $author$project$Main$update = F2(
 						{path: path}),
 					$author$project$Ports$svn(
 						A2($elm$core$Maybe$withDefault, '.', path))) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'UpdateRepo':
+				var repo = msg.a;
+				if (repo.$ === 'Just') {
+					var x = repo.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{repo: x}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				}
 			case 'CommitMsg':
 				var commitMsg = msg.a;
 				return _Utils_Tuple2(
@@ -8428,6 +8452,7 @@ var $author$project$Main$statusSection = function (model) {
 					[
 						$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$text),
 						$rtfeldman$elm_css$Html$Styled$Attributes$type_('text'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$value(model.repo),
 						$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$SetRepo)
 					]),
 				_List_Nil),

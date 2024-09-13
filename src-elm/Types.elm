@@ -12,6 +12,7 @@ type Msg
     | SetRepo String
     | Checkout
     | UpdatePath (Maybe String)
+    | UpdateRepo (Maybe String)
     | HandleCheck Path Bool
     | CommitMsg String
     | Commit

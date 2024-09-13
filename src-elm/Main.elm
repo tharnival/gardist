@@ -89,6 +89,15 @@ update msg model =
                 -- don't overwrite existing path with nothing
                 ( model, Cmd.none )
 
+        UpdateRepo repo ->
+            case repo of
+                Just x ->
+                    ( { model | repo = x }, Cmd.none )
+
+                Nothing ->
+                    -- don't overwrite existing path with nothing
+                    ( model, Cmd.none )
+
         CommitMsg commitMsg ->
             ( { model | commitMsg = commitMsg }, Cmd.none )
 
@@ -129,6 +138,7 @@ subscriptions _ =
     Sub.batch
         [ updateStatus UpdateStatus
         , updatePath UpdatePath
+        , updateRepo UpdateRepo
         ]
 
 
@@ -153,7 +163,7 @@ statusSection : Model -> List (SHtml Msg)
 statusSection model =
     if isJust model.path then
         [ button [ css <| Styles.button ++ [ w_32, mr_3, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
-        , input [ css <| Styles.text, type_ "text", onInput SetRepo ] []
+        , input [ css <| Styles.text, type_ "text", value model.repo, onInput SetRepo ] []
         , br [] []
         , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]
         , br [] []

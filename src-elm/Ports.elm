@@ -32,6 +32,9 @@ port revert :
 port updatePath : (Maybe String -> msg) -> Sub msg
 
 
+port updateRepo : (Maybe String -> msg) -> Sub msg
+
+
 type alias StatusOutput =
     { info : String
     , path : String

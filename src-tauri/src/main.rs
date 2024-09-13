@@ -156,16 +156,38 @@ fn svn_revert(root: String, changes: Vec<String>) -> Vec<StatusOutput> {
 #[derive(Clone, serde::Serialize)]
 struct ProjectPath {
     path: Option<String>,
+    repo: Option<String>,
 }
 
 #[tauri::command]
 fn set_path(window: Window) {
     FileDialogBuilder::new().pick_folder(move |path| {
+        // get URL of selected directory if working copy
+        let mut repo = Some("".to_string());
+        if let Some(root) = path.clone() {
+            let output = Command::new("svn")
+                .current_dir(root)
+                .args(["info"])
+                .output()
+                .expect("Failed to spawn command");
+
+            let re = regex::Regex::new(r"URL: ([^\n]*)").unwrap();
+            if let Some(captures) = re.clone().captures(&output.stdout) {
+                if let Some(url) = captures.get(1) {
+                    repo = Some(url.as_str().to_string());
+                }
+            }
+        }
+
         let _ = window.emit_all(
             "path_change",
             ProjectPath {
                 path: match path {
-                    Some(x) => x.to_str().map(str::to_string),
+                    Some(ref x) => x.to_str().map(str::to_string),
+                    None => None,
+                },
+                repo: match path {
+                    Some(_) => repo,
                     None => None,
                 },
             },
