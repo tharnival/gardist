@@ -5208,16 +5208,12 @@ var $author$project$FileTree$empty = A3(
 	{changeType: $author$project$FileTree$Root, checked: true},
 	true,
 	$elm$core$Dict$empty);
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Ports$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{
-			commitMsg: '',
-			path: $elm$core$Maybe$Just('/home/thor/temp/svn/gardist'),
-			status: $author$project$FileTree$empty
-		},
-		$author$project$Ports$svn('/home/thor/temp/svn/gardist'));
+		{commitMsg: '', path: $elm$core$Maybe$Nothing, status: $author$project$FileTree$empty},
+		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Types$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5292,6 +5288,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Ports$commit = _Platform_outgoingPort(
 	'commit',
 	function ($) {
@@ -6007,6 +6004,10 @@ var $author$project$FileTree$fromStatus = A2(
 				acc);
 		}),
 	$author$project$FileTree$empty);
+var $author$project$Util$fst = function (_v0) {
+	var x = _v0.a;
+	return x;
+};
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6100,14 +6101,27 @@ var $author$project$Util$isJust = function (x) {
 		return false;
 	}
 };
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Ports$revert = _Platform_outgoingPort(
+	'revert',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'changes',
+					$elm$json$Json$Encode$list($elm$json$Json$Encode$string)($.changes)),
+					_Utils_Tuple2(
+					'root',
+					$elm$json$Json$Encode$string($.root))
+				]));
+	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Ports$setPath = _Platform_outgoingPort(
 	'setPath',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
+var $author$project$Ports$svn = _Platform_outgoingPort('svn', $elm$json$Json$Encode$string);
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -6259,6 +6273,17 @@ var $author$project$Main$update = F2(
 						{
 							changes: $author$project$FileTree$getCommitPaths(model.status),
 							msg: model.commitMsg,
+							root: A2($elm$core$Maybe$withDefault, '.', model.path)
+						}));
+			case 'Revert':
+				return _Utils_Tuple2(
+					model,
+					$author$project$Ports$revert(
+						{
+							changes: A2(
+								$elm$core$List$map,
+								$author$project$Util$fst,
+								$author$project$FileTree$getCommitPaths(model.status)),
 							root: A2($elm$core$Maybe$withDefault, '.', model.path)
 						}));
 			default:
@@ -8081,6 +8106,7 @@ var $author$project$Types$Commit = {$: 'Commit'};
 var $author$project$Types$CommitMsg = function (a) {
 	return {$: 'CommitMsg', a: a};
 };
+var $author$project$Types$Revert = {$: 'Revert'};
 var $author$project$Types$Svn = {$: 'Svn'};
 var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
 var $elm$virtual_dom$VirtualDom$property = F2(
@@ -8106,6 +8132,7 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$ml_3 = A2($rtfeldman$elm_css$Css$property, 'margin-left', '0.75rem');
 var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -8393,6 +8420,24 @@ var $author$project$Main$statusSection = function (model) {
 					_List_fromArray(
 						[
 							$rtfeldman$elm_css$Html$Styled$text('commit')
+						])),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$button,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_Utils_ap(
+								$author$project$Styles$button,
+								_List_fromArray(
+									[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$ml_3]))),
+							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+							$elm$core$List$isEmpty(
+								$author$project$FileTree$getCommitPaths(model.status))),
+							$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Revert)
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text('discard')
 						]))
 				]))) : _List_Nil;
 };

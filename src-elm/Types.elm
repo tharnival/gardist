@@ -13,6 +13,7 @@ type Msg
     | HandleCheck Path Bool
     | CommitMsg String
     | Commit
+    | Revert
     | Expand Path Bool
 
 

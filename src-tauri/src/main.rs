@@ -126,6 +126,20 @@ fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<St
     svn_status(root)
 }
 
+#[tauri::command]
+fn svn_revert(root: String, changes: Vec<String>) -> Vec<StatusOutput> {
+    let cwd = PathBuf::from(root.clone());
+
+    let _ = Command::new("svn")
+        .current_dir(cwd)
+        .args(["revert"])
+        .args(changes)
+        .status()
+        .expect("Failed to spawn command");
+
+    svn_status(root)
+}
+
 #[derive(Clone, serde::Serialize)]
 struct ProjectPath {
     path: Option<String>,
@@ -153,7 +167,9 @@ fn main() {
             let _ = app.get_window("main").unwrap().minimize();
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![svn_status, svn_commit, set_path])
+        .invoke_handler(tauri::generate_handler![
+            svn_status, svn_commit, svn_revert, set_path
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

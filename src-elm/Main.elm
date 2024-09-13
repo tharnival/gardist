@@ -88,6 +88,16 @@ update msg model =
                 }
             )
 
+        Revert ->
+            ( model
+            , revert
+                { root = Maybe.withDefault "." model.path
+                , changes =
+                    FileTree.getCommitPaths model.status
+                        |> List.map fst
+                }
+            )
+
         Expand path expanded ->
             let
                 newStatus =
@@ -153,6 +163,12 @@ statusSection model =
                     , onClick Commit
                     ]
                     [ text "commit" ]
+               , button
+                    [ css <| Styles.button ++ [ w_32, ml_3 ]
+                    , disabled <| List.isEmpty <| FileTree.getCommitPaths model.status
+                    , onClick Revert
+                    ]
+                    [ text "discard" ]
                ]
 
     else

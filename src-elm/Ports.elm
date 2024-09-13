@@ -15,6 +15,13 @@ port commit :
     -> Cmd msg
 
 
+port revert :
+    { root : String
+    , changes : List String
+    }
+    -> Cmd msg
+
+
 port updatePath : (Maybe String -> msg) -> Sub msg
 
 

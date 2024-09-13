@@ -16,6 +16,10 @@ ports.commit.subscribe(async (args) => {
   ports.updateStatus.send(await invoke("svn_commit", args));
 });
 
+ports.revert.subscribe(async (args) => {
+  ports.updateStatus.send(await invoke("svn_revert", args));
+});
+
 ports.setPath.subscribe(async () => {
   await invoke("set_path", {});
 });
