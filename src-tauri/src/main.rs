@@ -79,20 +79,39 @@ fn recursive_fs_read(path: &PathBuf) -> Vec<(PathBuf, bool)> {
 }
 
 #[tauri::command]
-fn svn_checkout(root: String, repo: String) -> Vec<StatusOutput> {
+fn svn_checkout(
+    root: String,
+    repo: String,
+    username: String,
+    password: String,
+) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
-    let _ = Command::new("svn")
+    let (_rx, mut child) = Command::new("svn")
         .current_dir(cwd)
         .args(["checkout", &repo, "."])
-        .status()
+        .args([
+            "--non-interactive",
+            "--username",
+            &username,
+            "--password-from-stdin",
+        ])
+        .spawn()
         .expect("Failed to spawn command");
+
+    let _ = child.write((password + "\n").as_bytes());
 
     svn_status(root)
 }
 
 #[tauri::command]
-fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<StatusOutput> {
+fn svn_commit(
+    root: String,
+    msg: String,
+    changes: Vec<(String, bool)>,
+    username: String,
+    password: String,
+) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
     let adds: Vec<_> = changes
@@ -129,12 +148,20 @@ fn svn_commit(root: String, msg: String, changes: Vec<(String, bool)>) -> Vec<St
         .map(|(path, _add)| path)
         .collect();
 
-    let _ = Command::new("svn")
+    let (_rx, mut child) = Command::new("svn")
         .current_dir(cwd)
         .args(["commit", "--force-log", "-m", &msg])
+        .args([
+            "--non-interactive",
+            "--username",
+            &username,
+            "--password-from-stdin",
+        ])
         .args(items)
-        .status()
+        .spawn()
         .expect("Failed to spawn command");
+
+    let _ = child.write((password + "\n").as_bytes());
 
     svn_status(root)
 }

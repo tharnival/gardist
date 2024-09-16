@@ -28,7 +28,9 @@ main =
 
 
 type alias Model =
-    { status : FileTree
+    { username : String
+    , password : String
+    , status : FileTree
     , path : Maybe String
     , repo : String
     , commitMsg : String
@@ -37,7 +39,9 @@ type alias Model =
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { status = FileTree.empty
+    ( { username = ""
+      , password = ""
+      , status = FileTree.empty
       , path = Nothing
       , repo = ""
       , commitMsg = ""
@@ -73,11 +77,19 @@ update msg model =
         SetRepo content ->
             ( { model | repo = content }, Cmd.none )
 
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
+
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
+
         Checkout ->
             ( model
             , checkout
                 { root = Maybe.withDefault "." model.path
                 , repo = model.repo
+                , username = model.username
+                , password = model.password
                 }
             )
 
@@ -107,6 +119,8 @@ update msg model =
                 { root = Maybe.withDefault "." model.path
                 , msg = model.commitMsg
                 , changes = FileTree.getCommitPaths model.status
+                , username = model.username
+                , password = model.password
                 }
             )
 
@@ -151,7 +165,13 @@ view model =
     toUnstyled <|
         main_ []
             [ div []
-                ([ button [ css <| Styles.button ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
+                ([ text "username:"
+                 , input [ css <| Styles.text ++ [ w_48 ], value model.username, onInput SetUsername ] []
+                 , br [] []
+                 , text "password:"
+                 , input [ css <| Styles.text ++ [ w_48 ], type_ "password", value model.password, onInput SetPassword ] []
+                 , br [] []
+                 , button [ css <| Styles.button ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
                  , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
                  ]
                     ++ statusSection model
@@ -162,7 +182,7 @@ view model =
 statusSection : Model -> List (SHtml Msg)
 statusSection model =
     if isJust model.path then
-        [ button [ css <| Styles.button ++ [ w_32, mr_3, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
+        [ button [ css <| Styles.button ++ [ w_32, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
         , input [ css <| Styles.text, type_ "text", value model.repo, onInput SetRepo ] []
         , br [] []
         , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]

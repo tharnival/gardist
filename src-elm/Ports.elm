@@ -10,6 +10,8 @@ port setPath : () -> Cmd msg
 port checkout :
     { root : String
     , repo : String
+    , username : String
+    , password : String
     }
     -> Cmd msg
 
@@ -18,6 +20,8 @@ port commit :
     { root : String
     , msg : String
     , changes : List ( String, Bool )
+    , username : String
+    , password : String
     }
     -> Cmd msg
 

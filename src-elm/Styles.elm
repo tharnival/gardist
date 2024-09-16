@@ -26,6 +26,7 @@ text : Style
 text =
     [ rounded_md
     , text_2xl
+    , m_2
     ]
 
 

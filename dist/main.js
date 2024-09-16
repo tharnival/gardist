@@ -5212,7 +5212,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{commitMsg: '', path: $elm$core$Maybe$Nothing, repo: '', status: $author$project$FileTree$empty},
+		{commitMsg: '', password: '', path: $elm$core$Maybe$Nothing, repo: '', status: $author$project$FileTree$empty, username: ''},
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Types$UpdatePath = function (a) {
@@ -5298,11 +5298,17 @@ var $author$project$Ports$checkout = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
+					'password',
+					$elm$json$Json$Encode$string($.password)),
+					_Utils_Tuple2(
 					'repo',
 					$elm$json$Json$Encode$string($.repo)),
 					_Utils_Tuple2(
 					'root',
-					$elm$json$Json$Encode$string($.root))
+					$elm$json$Json$Encode$string($.root)),
+					_Utils_Tuple2(
+					'username',
+					$elm$json$Json$Encode$string($.username))
 				]));
 	});
 var $elm$json$Json$Encode$bool = _Json_wrap;
@@ -5340,8 +5346,14 @@ var $author$project$Ports$commit = _Platform_outgoingPort(
 					'msg',
 					$elm$json$Json$Encode$string($.msg)),
 					_Utils_Tuple2(
+					'password',
+					$elm$json$Json$Encode$string($.password)),
+					_Utils_Tuple2(
 					'root',
-					$elm$json$Json$Encode$string($.root))
+					$elm$json$Json$Encode$string($.root)),
+					_Utils_Tuple2(
+					'username',
+					$elm$json$Json$Encode$string($.username))
 				]));
 	});
 var $elm$core$Maybe$map = F2(
@@ -6282,13 +6294,29 @@ var $author$project$Main$update = F2(
 						model,
 						{repo: content}),
 					$elm$core$Platform$Cmd$none);
+			case 'SetUsername':
+				var username = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{username: username}),
+					$elm$core$Platform$Cmd$none);
+			case 'SetPassword':
+				var password = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{password: password}),
+					$elm$core$Platform$Cmd$none);
 			case 'Checkout':
 				return _Utils_Tuple2(
 					model,
 					$author$project$Ports$checkout(
 						{
+							password: model.password,
 							repo: model.repo,
-							root: A2($elm$core$Maybe$withDefault, '.', model.path)
+							root: A2($elm$core$Maybe$withDefault, '.', model.path),
+							username: model.username
 						}));
 			case 'UpdatePath':
 				var path = msg.a;
@@ -6326,7 +6354,9 @@ var $author$project$Main$update = F2(
 						{
 							changes: $author$project$FileTree$getCommitPaths(model.status),
 							msg: model.commitMsg,
-							root: A2($elm$core$Maybe$withDefault, '.', model.path)
+							password: model.password,
+							root: A2($elm$core$Maybe$withDefault, '.', model.path),
+							username: model.username
 						}));
 			case 'Revert':
 				return _Utils_Tuple2(
@@ -6350,13 +6380,20 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Types$SetPassword = function (a) {
+	return {$: 'SetPassword', a: a};
+};
 var $author$project$Types$SetPath = {$: 'SetPath'};
+var $author$project$Types$SetUsername = function (a) {
+	return {$: 'SetUsername', a: a};
+};
 var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
 	function (a, b, c) {
 		return {$: 'Node', a: a, b: b, c: c};
 	});
 var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
 var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
+var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
 var $rtfeldman$elm_css$Html$Styled$button = $rtfeldman$elm_css$Html$Styled$node('button');
 var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
 	function (a, b) {
@@ -8129,6 +8166,7 @@ var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
 var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
+var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
 var $rtfeldman$elm_css$Html$Styled$main_ = $rtfeldman$elm_css$Html$Styled$node('main');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -8155,45 +8193,6 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Types$Checkout = {$: 'Checkout'};
-var $author$project$Types$Commit = {$: 'Commit'};
-var $author$project$Types$CommitMsg = function (a) {
-	return {$: 'CommitMsg', a: a};
-};
-var $author$project$Types$Revert = {$: 'Revert'};
-var $author$project$Types$SetRepo = function (a) {
-	return {$: 'SetRepo', a: a};
-};
-var $author$project$Types$Svn = {$: 'Svn'};
-var $rtfeldman$elm_css$Html$Styled$br = $rtfeldman$elm_css$Html$Styled$node('br');
-var $elm$virtual_dom$VirtualDom$property = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_property,
-			_VirtualDom_noInnerHtmlOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlJson(value));
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$property = F2(
-	function (key, value) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$property, key, value),
-			false,
-			'');
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
-var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '1.25rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$ml_3 = A2($rtfeldman$elm_css$Css$property, 'margin-left', '0.75rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3 = A2($rtfeldman$elm_css$Css$property, 'margin-right', '0.75rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3 = A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.75rem');
 var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -8225,6 +8224,42 @@ var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
 			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
 };
+var $author$project$Types$Checkout = {$: 'Checkout'};
+var $author$project$Types$Commit = {$: 'Commit'};
+var $author$project$Types$CommitMsg = function (a) {
+	return {$: 'CommitMsg', a: a};
+};
+var $author$project$Types$Revert = {$: 'Revert'};
+var $author$project$Types$SetRepo = function (a) {
+	return {$: 'SetRepo', a: a};
+};
+var $author$project$Types$Svn = {$: 'Svn'};
+var $elm$virtual_dom$VirtualDom$property = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_property,
+			_VirtualDom_noInnerHtmlOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlJson(value));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$property = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$property, key, value),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '1.25rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$ml_3 = A2($rtfeldman$elm_css$Css$property, 'margin-left', '0.75rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3 = A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.75rem');
 var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -8242,8 +8277,9 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_2 = A2($rtfeldman$elm_css$Css$property, 'margin', '0.5rem');
 var $author$project$Styles$text = _List_fromArray(
-	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
+	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_2]);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
 var $author$project$Styles$textField = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]);
@@ -8439,7 +8475,7 @@ var $author$project$Main$statusSection = function (model) {
 						_Utils_ap(
 							$author$project$Styles$button,
 							_List_fromArray(
-								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5]))),
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_5]))),
 						$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Types$Checkout)
 					]),
 				_List_fromArray(
@@ -9122,6 +9158,7 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	}
 };
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_48 = A2($rtfeldman$elm_css$Css$property, 'width', '12rem');
 var $author$project$Main$view = function (model) {
 	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
@@ -9135,6 +9172,37 @@ var $author$project$Main$view = function (model) {
 					_Utils_ap(
 						_List_fromArray(
 							[
+								$rtfeldman$elm_css$Html$Styled$text('username:'),
+								A2(
+								$rtfeldman$elm_css$Html$Styled$input,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css(
+										_Utils_ap(
+											$author$project$Styles$text,
+											_List_fromArray(
+												[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_48]))),
+										$rtfeldman$elm_css$Html$Styled$Attributes$value(model.username),
+										$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$SetUsername)
+									]),
+								_List_Nil),
+								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+								$rtfeldman$elm_css$Html$Styled$text('password:'),
+								A2(
+								$rtfeldman$elm_css$Html$Styled$input,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css(
+										_Utils_ap(
+											$author$project$Styles$text,
+											_List_fromArray(
+												[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_48]))),
+										$rtfeldman$elm_css$Html$Styled$Attributes$type_('password'),
+										$rtfeldman$elm_css$Html$Styled$Attributes$value(model.password),
+										$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Types$SetPassword)
+									]),
+								_List_Nil),
+								A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
 								A2(
 								$rtfeldman$elm_css$Html$Styled$button,
 								_List_fromArray(

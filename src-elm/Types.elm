@@ -9,6 +9,8 @@ type Msg
     = UpdateStatus (List StatusOutput)
     | Svn
     | SetPath
+    | SetUsername String
+    | SetPassword String
     | SetRepo String
     | Checkout
     | UpdatePath (Maybe String)
