@@ -29,6 +29,9 @@
       "fs": {
         "readDir": true
       },
+      "os": {
+        "all": true
+      },
       "window": {
         "minimize": true
       }

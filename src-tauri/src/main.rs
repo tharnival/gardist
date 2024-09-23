@@ -84,6 +84,7 @@ fn svn_checkout(
     repo: String,
     username: String,
     password: String,
+    os: String,
 ) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
@@ -99,7 +100,7 @@ fn svn_checkout(
         .spawn()
         .expect("Failed to spawn command");
 
-    let _ = child.write((password + "\n").as_bytes());
+    let _ = child.write((password + &line_ending(os)).as_bytes());
 
     svn_status(root)
 }
@@ -111,6 +112,7 @@ fn svn_commit(
     changes: Vec<(String, bool)>,
     username: String,
     password: String,
+    os: String,
 ) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
@@ -161,7 +163,7 @@ fn svn_commit(
         .spawn()
         .expect("Failed to spawn command");
 
-    let _ = child.write((password + "\n").as_bytes());
+    let _ = child.write((password + &line_ending(os)).as_bytes());
 
     svn_status(root)
 }
@@ -220,6 +222,14 @@ fn set_path(window: Window) {
             },
         );
     });
+}
+
+fn line_ending(os: String) -> String {
+    if os == "Windows_NT" {
+        "\r\n".to_string()
+    } else {
+        "\n".to_string()
+    }
 }
 
 fn main() {

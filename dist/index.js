@@ -3,6 +3,7 @@ const app = Elm.Main.init({ node: root, flags: {} });
 const ports = app.ports;
 const invoke = window.__TAURI__.invoke;
 const { listen } = window.__TAURI__.event;
+const { type } = window.__TAURI__.os;
 
 ports.svn.subscribe(async (path) => {
   ports.updateStatus.send(
@@ -13,10 +14,12 @@ ports.svn.subscribe(async (path) => {
 });
 
 ports.checkout.subscribe(async (args) => {
+  args["os"] = await type();
   ports.updateStatus.send(await invoke("svn_checkout", args));
 });
 
 ports.commit.subscribe(async (args) => {
+  args["os"] = await type();
   ports.updateStatus.send(await invoke("svn_commit", args));
 });
 
