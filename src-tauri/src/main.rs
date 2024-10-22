@@ -1,11 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use tauri::api;
 use tauri::api::dialog::FileDialogBuilder;
-use tauri::api::process::{Command, CommandEvent};
+use tauri::api::process::{Command, CommandEvent, Output};
+use tauri::async_runtime::Receiver;
+use tauri::AppHandle;
 use tauri::{Manager, Window};
 
 #[derive(Clone, serde::Serialize)]
@@ -16,8 +20,72 @@ struct StatusOutput {
     is_dir: bool,
 }
 
+fn log_output(app: AppHandle, cwd: PathBuf, cmd: &str, output: tauri::api::Result<Output>) {
+    match output {
+        Ok(out) => log_cmd(app, cwd, cmd, &out.stdout, &out.stderr, out.status.code()),
+        Err(e) => println!("failed to run '{}' because {}", cmd, e),
+    }
+}
+
+fn log_process(app: AppHandle, cwd: PathBuf, cmd: &str, mut rx: Receiver<CommandEvent>) {
+    let cmd_clone = cmd.to_string();
+    tauri::async_runtime::spawn(async move {
+        let mut stdout = String::new();
+        let mut stderr = String::new();
+        let mut exit_code = None;
+        while let Some(event) = rx.recv().await {
+            if let CommandEvent::Stdout(line) = event {
+                stdout += &line;
+            } else if let CommandEvent::Stderr(line) = event {
+                stderr += &line;
+            } else if let CommandEvent::Terminated(payload) = event {
+                exit_code = payload.code;
+            }
+        }
+        log_cmd(app, cwd, &cmd_clone, &stdout, &stderr, exit_code);
+    });
+}
+
+fn log_cmd(
+    app: AppHandle,
+    cwd: PathBuf,
+    cmd: &str,
+    stdout: &str,
+    stderr: &str,
+    exit_code: Option<i32>,
+) {
+    let mut log = "in ".to_string();
+    log += cwd.to_str().unwrap_or("FAILED");
+    log += &format!("\n$ {cmd}\n");
+    log += "\nSTDOUT:\n";
+    log += stdout;
+    log += "\nSTDERR:\n";
+    log += stderr;
+    if let Some(exit) = exit_code {
+        log += "\nwith exit code: ";
+        log += &exit.to_string();
+    }
+    log += "\n\n";
+
+    log_text(app, &log);
+}
+
+fn log_text(app: AppHandle, text: &str) {
+    let mut log_dir = app.path_resolver().app_log_dir().unwrap();
+    log_dir.push("log.txt");
+    let opening = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(log_dir.as_path());
+    if let Ok(mut file) = opening {
+        let _ = file.write(text.as_bytes());
+    } else if let Err(e) = opening {
+        println!("log file opening error: {}", e);
+    }
+}
+
 #[tauri::command]
-fn svn_status(path: String) -> Vec<StatusOutput> {
+fn svn_status(app: AppHandle, path: String) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(path.clone());
     let (mut cmd, mut _child) = Command::new("svn")
         .current_dir(cwd.clone())
@@ -28,8 +96,12 @@ fn svn_status(path: String) -> Vec<StatusOutput> {
     let (tx, rx) = mpsc::channel();
     tauri::async_runtime::spawn(async move {
         let mut output = Vec::new();
+        let mut stdout = String::new();
+        let mut stderr = String::new();
+        let mut exit_code = None;
         while let Some(event) = cmd.recv().await {
             if let CommandEvent::Stdout(line) = event {
+                stdout += &line;
                 let info = line[..7].to_string();
                 let path = line[8..].trim().to_string();
 
@@ -55,8 +127,15 @@ fn svn_status(path: String) -> Vec<StatusOutput> {
                         is_dir: api::dir::is_dir(full_path).unwrap_or(false),
                     });
                 }
+            } else if let CommandEvent::Stdout(line) = event {
+                stderr += &line;
+            } else if let CommandEvent::Terminated(payload) = event {
+                exit_code = payload.code;
             }
         }
+
+        log_cmd(app, cwd, "svn status", &stdout, &stderr, exit_code);
+
         tx.send(output)
     });
 
@@ -80,6 +159,7 @@ fn recursive_fs_read(path: &PathBuf) -> Vec<(PathBuf, bool)> {
 
 #[tauri::command]
 fn svn_checkout(
+    app: AppHandle,
     root: String,
     repo: String,
     username: String,
@@ -88,8 +168,8 @@ fn svn_checkout(
 ) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
-    let (_rx, mut child) = Command::new("svn")
-        .current_dir(cwd)
+    let (rx, mut child) = Command::new("svn")
+        .current_dir(cwd.clone())
         .args(["checkout", &repo, "."])
         .args([
             "--non-interactive",
@@ -102,11 +182,22 @@ fn svn_checkout(
 
     let _ = child.write((password + &line_ending(os)).as_bytes());
 
-    svn_status(root)
+    log_process(
+        app.clone(),
+        cwd,
+        &format!(
+            "svn checkout {} . --non-interactive --username {} --password-from-stdin",
+            &repo, &username
+        ),
+        rx,
+    );
+
+    svn_status(app, root)
 }
 
 #[tauri::command]
 fn svn_commit(
+    app: AppHandle,
     root: String,
     msg: String,
     changes: Vec<(String, bool)>,
@@ -116,6 +207,7 @@ fn svn_commit(
 ) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
+    // add files marked for adding
     let adds: Vec<_> = changes
         .clone()
         .into_iter()
@@ -123,13 +215,20 @@ fn svn_commit(
         .map(|(path, _add)| path)
         .collect();
 
-    let _ = Command::new("svn")
+    let add_output = Command::new("svn")
         .current_dir(cwd.clone())
         .args(["add", "--force", "--depth=empty"])
-        .args(adds)
-        .status()
-        .expect("Failed to spawn command");
+        .args(adds.clone())
+        .output();
 
+    log_output(
+        app.clone(),
+        cwd.clone(),
+        &format!("{} {}", "svn add --force --depth=empty", adds.join(" ")),
+        add_output,
+    );
+
+    // delete files marked for deletion
     let deletes: Vec<_> = changes
         .clone()
         .into_iter()
@@ -137,21 +236,28 @@ fn svn_commit(
         .map(|(path, _add)| path)
         .collect();
 
-    let _ = Command::new("svn")
+    let delete_output = Command::new("svn")
         .current_dir(cwd.clone())
         .args(["delete", "--force"])
-        .args(deletes)
-        .status()
-        .expect("Failed to spawn command");
+        .args(deletes.clone())
+        .output();
 
+    log_output(
+        app.clone(),
+        cwd.clone(),
+        &format!("{} {}", "svn delete --force", deletes.join(" ")),
+        delete_output,
+    );
+
+    // commit marked items
     let items: Vec<_> = changes
         .clone()
         .into_iter()
         .map(|(path, _add)| path)
         .collect();
 
-    let (_rx, mut child) = Command::new("svn")
-        .current_dir(cwd)
+    let (rx, mut child) = Command::new("svn")
+        .current_dir(cwd.clone())
         .args(["commit", "--force-log", "-m", &msg])
         .args([
             "--non-interactive",
@@ -165,21 +271,37 @@ fn svn_commit(
 
     let _ = child.write((password + &line_ending(os)).as_bytes());
 
-    svn_status(root)
+    log_process(
+        app.clone(),
+        cwd,
+        &format!(
+            "svn commit --force-log -m '{}' --non-interactive --username {} --password-from-stdin",
+            &msg, &username
+        ),
+        rx,
+    );
+
+    svn_status(app, root)
 }
 
 #[tauri::command]
-fn svn_revert(root: String, changes: Vec<String>) -> Vec<StatusOutput> {
+fn svn_revert(app: AppHandle, root: String, changes: Vec<String>) -> Vec<StatusOutput> {
     let cwd = PathBuf::from(root.clone());
 
-    let _ = Command::new("svn")
-        .current_dir(cwd)
+    let output = Command::new("svn")
+        .current_dir(cwd.clone())
         .args(["revert"])
-        .args(changes)
-        .status()
-        .expect("Failed to spawn command");
+        .args(changes.clone())
+        .output();
 
-    svn_status(root)
+    log_output(
+        app.clone(),
+        cwd,
+        &format!("{} {}", "svn revert", changes.join(" ")),
+        output,
+    );
+
+    svn_status(app, root)
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -237,6 +359,27 @@ fn main() {
         .setup(|app| {
             // nicer for development
             let _ = app.get_window("main").unwrap().minimize();
+
+            let mut log_dir = app.path_resolver().app_log_dir().unwrap();
+
+            println!(
+                "creating new log file at {}/log.txt...",
+                log_dir.to_str().unwrap_or("FAILED")
+            );
+            let mkdir = Command::new("mkdir")
+                .args(["-p", log_dir.as_path().to_str().unwrap()])
+                .output()
+                .expect("Failed to create log file");
+            print!("{}", mkdir.stdout);
+            print!("{}", mkdir.stderr);
+
+            log_dir.push("log.txt");
+            let _ = OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(log_dir.as_path());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
