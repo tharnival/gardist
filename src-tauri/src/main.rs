@@ -294,9 +294,6 @@ fn line_ending(os: String) -> String {
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            // nicer for development
-            let _ = app.get_window("main").unwrap().minimize();
-
             let mut log_dir = app.path_resolver().app_log_dir().unwrap();
 
             println!(
