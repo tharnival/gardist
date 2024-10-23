@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs::OpenOptions;
+use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -366,19 +366,23 @@ fn main() {
                 "creating new log file at {}/log.txt...",
                 log_dir.to_str().unwrap_or("FAILED")
             );
-            let mkdir = Command::new("mkdir")
-                .args(["-p", log_dir.as_path().to_str().unwrap()])
-                .output()
-                .expect("Failed to create log file");
-            print!("{}", mkdir.stdout);
-            print!("{}", mkdir.stderr);
 
-            log_dir.push("log.txt");
-            let _ = OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .create(true)
-                .open(log_dir.as_path());
+            match fs::create_dir_all(log_dir.as_path()) {
+                Ok(_) => {
+                    log_dir.push("log.txt");
+                    if let Err(e) = OpenOptions::new()
+                        .write(true)
+                        .truncate(true)
+                        .create(true)
+                        .open(log_dir.as_path())
+                    {
+                        println!("failed to create log file: {}", e)
+                    } else {
+                        println!("succesfully created log file")
+                    }
+                }
+                Err(e) => println!("failed to create log file directory: {}", e),
+            }
 
             Ok(())
         })
