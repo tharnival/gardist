@@ -57,7 +57,7 @@ fn svn_status(app: AppHandle, path: String) -> Vec<StatusOutput> {
                             })
                         }
                     }
-                } else {
+                } else if !info.starts_with(' ') {
                     output.push(StatusOutput {
                         info: info.clone(),
                         path,
@@ -119,7 +119,7 @@ fn svn_checkout(
 
     let _ = child.write((password + &line_ending(os)).as_bytes());
 
-    log_process(
+    blocking_log_process(
         app.clone(),
         cwd,
         &format!(
@@ -208,7 +208,7 @@ fn svn_commit(
 
     let _ = child.write((password + &line_ending(os)).as_bytes());
 
-    log_process(
+    blocking_log_process(
         app.clone(),
         cwd,
         &format!(
