@@ -35,3 +35,8 @@ await listen("path_change", (event) => {
   ports.updatePath.send(event.payload.path);
   ports.updateRepo.send(event.payload.repo);
 });
+
+ports.log.subscribe(async (args) => {
+  args["os"] = await type();
+  ports.updateLog.send(await invoke("svn_log", args));
+});

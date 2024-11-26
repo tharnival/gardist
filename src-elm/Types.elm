@@ -2,11 +2,12 @@ module Types exposing (..)
 
 import Html.Styled
 import Path exposing (Path)
-import Ports exposing (StatusOutput)
+import Ports exposing (LogEntry, Login, StatusOutput)
 
 
 type Msg
-    = UpdateStatus (List StatusOutput)
+    = ChangeTab Tab
+    | UpdateStatus (List StatusOutput)
     | Svn
     | SetPath
     | SetUsername String
@@ -20,6 +21,13 @@ type Msg
     | Commit
     | Revert
     | Expand Path Bool
+    | GetLog Login
+    | UpdateLog (List LogEntry)
+
+
+type Tab
+    = Status
+    | Log
 
 
 type alias SHtml x =

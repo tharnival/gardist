@@ -22,6 +22,19 @@ button =
     ]
 
 
+tab : Style
+tab =
+    button
+        ++ [ w_32
+           , mt_3
+           , mr_3
+           , Css.disabled
+                [ bg_color blue_400
+                , Css.hover [ bg_color blue_400 ]
+                ]
+           ]
+
+
 text : Style
 text =
     [ rounded_md
@@ -57,4 +70,15 @@ indent : Style
 indent =
     [ py_0
     , px_3
+    ]
+
+
+logEntry : Style
+logEntry =
+    [ bg_color gray_300
+    , relative
+    , rounded_md
+    , w_96
+    , my_2
+    , p_2
     ]

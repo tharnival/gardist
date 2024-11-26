@@ -4,6 +4,8 @@
 mod log;
 use crate::log::*;
 
+use quick_xml;
+use quick_xml::events::Event;
 use std::fs::{self, OpenOptions};
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -64,7 +66,7 @@ fn svn_status(app: AppHandle, path: String) -> Vec<StatusOutput> {
                         is_dir: api::dir::is_dir(full_path).unwrap_or(false),
                     });
                 }
-            } else if let CommandEvent::Stdout(line) = event {
+            } else if let CommandEvent::Stderr(line) = event {
                 stderr += &line;
             } else if let CommandEvent::Terminated(payload) = event {
                 exit_code = payload.code;
@@ -291,6 +293,111 @@ fn line_ending(os: String) -> String {
     }
 }
 
+#[derive(Default, Clone, serde::Serialize)]
+pub struct LogEntry {
+    revision: String,
+    author: String,
+    date: String,
+    msg: String,
+}
+
+#[tauri::command]
+fn svn_log(
+    app: AppHandle,
+    root: String,
+    username: String,
+    password: String,
+    os: String,
+) -> Vec<LogEntry> {
+    let cwd = PathBuf::from(root.clone());
+
+    let (mut cmd, mut child) = Command::new("svn")
+        .current_dir(cwd.clone())
+        .args([
+            "log",
+            "--xml",
+            "--non-interactive",
+            "--username",
+            &username,
+            "--password-from-stdin",
+        ])
+        .spawn()
+        .expect("Failed to spawn command");
+
+    let _ = child.write((password + &line_ending(os)).as_bytes());
+
+    let (tx, rx) = mpsc::channel();
+    tauri::async_runtime::spawn(async move {
+        let mut stdout = String::new();
+        let mut stderr = String::new();
+        let mut exit_code = None;
+        while let Some(event) = cmd.recv().await {
+            if let CommandEvent::Stdout(line) = event {
+                stdout += &line;
+            } else if let CommandEvent::Stderr(line) = event {
+                stderr += &line;
+            } else if let CommandEvent::Terminated(payload) = event {
+                exit_code = payload.code;
+            }
+        }
+
+        log_cmd(
+            app,
+            cwd,
+            &format!(
+                "svn status --xml --non-interactive --username {} --password-from-stdin",
+                &username
+            ),
+            &stdout,
+            &stderr,
+            exit_code,
+        );
+
+        let mut reader = quick_xml::Reader::from_str(&stdout);
+        let mut txt = String::new();
+        let mut buf = Vec::new();
+
+        let mut log = Vec::new();
+        let mut log_entry = LogEntry::default();
+
+        // parse xml
+        loop {
+            match reader.read_event_into(&mut buf) {
+                Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
+
+                Ok(Event::Eof) => break,
+
+                Ok(Event::Start(e)) => match e.name().as_ref() {
+                    b"logentry" => {
+                        log_entry.revision = std::string::String::from_utf8(
+                            e.attributes().next().unwrap().unwrap().value.into_owned(),
+                        )
+                        .unwrap_or("".to_string())
+                    }
+                    _ => (),
+                },
+
+                Ok(Event::Text(e)) => txt = e.unescape().unwrap().into_owned(),
+
+                Ok(Event::End(e)) => match e.name().as_ref() {
+                    b"author" => log_entry.author = txt.clone(),
+                    b"date" => log_entry.date = txt.clone(),
+                    b"msg" => log_entry.msg = txt.clone(),
+                    b"logentry" => log.push(log_entry.clone()),
+                    _ => (),
+                },
+
+                _ => (),
+            }
+            buf.clear();
+        }
+
+        tx.send(log)
+    });
+
+    rx.recv().unwrap()
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -328,6 +435,7 @@ fn main() {
             svn_checkout,
             svn_commit,
             svn_revert,
+            svn_log,
             set_path
         ])
         .run(tauri::generate_context!())

@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import FileTree exposing (FileTree)
 import Html exposing (Html)
-import Html.Styled exposing (br, button, div, input, main_, text, textarea, toUnstyled)
+import Html.Styled exposing (a, br, button, div, input, main_, text, textarea, toUnstyled)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
 import Ports exposing (..)
@@ -28,23 +28,27 @@ main =
 
 
 type alias Model =
-    { username : String
+    { tab : Tab
+    , username : String
     , password : String
     , status : FileTree
     , path : Maybe String
     , repo : String
     , commitMsg : String
+    , log : List LogEntry
     }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( { username = ""
+    ( { tab = Status
+      , username = ""
       , password = ""
       , status = FileTree.empty
       , path = Nothing
       , repo = ""
       , commitMsg = ""
+      , log = []
       }
     , Cmd.none
     )
@@ -57,6 +61,15 @@ init _ =
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
+        ChangeTab tab ->
+            ( { model | tab = tab }
+            , if tab == Log then
+                log { root = "/home/thor/temp/svn/gardist", username = "tharnival", password = "barneyhal" }
+
+              else
+                Cmd.none
+            )
+
         UpdateStatus status ->
             ( { model | status = FileTree.fromStatus status }, Cmd.none )
 
@@ -142,6 +155,12 @@ update msg model =
             in
             ( { model | status = newStatus }, Cmd.none )
 
+        GetLog login ->
+            ( model, log login )
+
+        UpdateLog log ->
+            ( { model | log = log }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -153,6 +172,7 @@ subscriptions _ =
         [ updateStatus UpdateStatus
         , updatePath UpdatePath
         , updateRepo UpdateRepo
+        , updateLog UpdateLog
         ]
 
 
@@ -174,47 +194,86 @@ view model =
                  , button [ css <| Styles.button ++ [ w_64 ], onClick SetPath ] [ text "choose folder" ]
                  , div [] [ text <| Maybe.withDefault "No path specified" model.path ]
                  ]
-                    ++ statusSection model
+                    ++ (if isJust model.path then
+                            tabsView model
+                                ++ (case model.tab of
+                                        Status ->
+                                            statusSection model
+
+                                        Log ->
+                                            logSection model
+                                   )
+
+                        else
+                            []
+                       )
                 )
             ]
 
 
+tabsView : Model -> List (SHtml Msg)
+tabsView model =
+    [ button [ css <| Styles.tab, disabled <| model.tab == Status, onClick (ChangeTab Status) ] [ text "Status" ]
+    , button [ css <| Styles.tab, disabled <| model.tab == Log, onClick (ChangeTab Log) ] [ text "Log" ]
+    , br [] []
+    ]
+
+
 statusSection : Model -> List (SHtml Msg)
 statusSection model =
-    if isJust model.path then
-        [ button [ css <| Styles.button ++ [ w_32, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
-        , input [ css <| Styles.text, type_ "text", value model.repo, onInput SetRepo ] []
-        , br [] []
-        , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]
-        , br [] []
-        ]
-            ++ FileTree.view model.status
-            ++ [ br [] []
-               , textarea
-                    [ css Styles.textField
-                    , placeholder "Commit message"
-                    , value model.commitMsg
-                    , onInput CommitMsg
-                    ]
-                    []
-               , br [] []
-               , button
-                    [ css <| Styles.button ++ [ w_32 ]
-                    , disabled <|
-                        -- don't allow commiting if there is no message
-                        -- or no changes added
-                        (model.commitMsg == "")
-                            || (FileTree.getCommitPaths model.status |> List.isEmpty)
-                    , onClick Commit
-                    ]
-                    [ text "commit" ]
-               , button
-                    [ css <| Styles.button ++ [ w_32, ml_3 ]
-                    , disabled <| List.isEmpty <| FileTree.getCommitPaths model.status
-                    , onClick Revert
-                    ]
-                    [ text "discard" ]
-               ]
+    [ button [ css <| Styles.button ++ [ w_32, mt_3, mb_5 ], onClick Checkout ] [ text "checkout" ]
+    , input [ css <| Styles.text, type_ "text", value model.repo, onInput SetRepo ] []
+    , br [] []
+    , button [ css <| Styles.button ++ [ w_64 ], onClick Svn ] [ text "update status" ]
+    , br [] []
+    ]
+        ++ FileTree.view model.status
+        ++ [ br [] []
+           , textarea
+                [ css Styles.textField
+                , placeholder "Commit message"
+                , value model.commitMsg
+                , onInput CommitMsg
+                ]
+                []
+           , br [] []
+           , button
+                [ css <| Styles.button ++ [ w_32 ]
+                , disabled <|
+                    -- don't allow commiting if there is no message
+                    -- or no changes added
+                    (model.commitMsg == "")
+                        || (FileTree.getCommitPaths model.status |> List.isEmpty)
+                , onClick Commit
+                ]
+                [ text "commit" ]
+           , button
+                [ css <| Styles.button ++ [ w_32, ml_3 ]
+                , disabled <| List.isEmpty <| FileTree.getCommitPaths model.status
+                , onClick Revert
+                ]
+                [ text "discard" ]
+           ]
 
-    else
-        []
+
+logSection : Model -> List (SHtml Msg)
+logSection model =
+    model.log
+        |> List.concatMap
+            (\x ->
+                [ div [ css <| Styles.logEntry ]
+                    [ text (String.concat [ "#", x.revision, " by ", x.author ])
+                    , a [ css [ absolute, right_2 ] ]
+                        [ text
+                            (String.concat
+                                [ String.left 10 x.date
+                                , " "
+                                , String.slice 11 16 x.date
+                                ]
+                            )
+                        ]
+                    , br [] []
+                    , text x.msg
+                    ]
+                ]
+            )

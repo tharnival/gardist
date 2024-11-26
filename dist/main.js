@@ -5196,6 +5196,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Types$Status = {$: 'Status'};
 var $author$project$FileTree$Dir = F3(
 	function (a, b, c) {
 		return {$: 'Dir', a: a, b: b, c: c};
@@ -5212,8 +5213,11 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{commitMsg: '', password: '', path: $elm$core$Maybe$Nothing, repo: '', status: $author$project$FileTree$empty, username: ''},
+		{commitMsg: '', log: _List_Nil, password: '', path: $elm$core$Maybe$Nothing, repo: '', status: $author$project$FileTree$empty, tab: $author$project$Types$Status, username: ''},
 		$elm$core$Platform$Cmd$none);
+};
+var $author$project$Types$UpdateLog = function (a) {
+	return {$: 'UpdateLog', a: a};
 };
 var $author$project$Types$UpdatePath = function (a) {
 	return {$: 'UpdatePath', a: a};
@@ -5225,9 +5229,37 @@ var $author$project$Types$UpdateStatus = function (a) {
 	return {$: 'UpdateStatus', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Ports$updateLog = _Platform_incomingPort(
+	'updateLog',
+	$elm$json$Json$Decode$list(
+		A2(
+			$elm$json$Json$Decode$andThen,
+			function (revision) {
+				return A2(
+					$elm$json$Json$Decode$andThen,
+					function (msg) {
+						return A2(
+							$elm$json$Json$Decode$andThen,
+							function (date) {
+								return A2(
+									$elm$json$Json$Decode$andThen,
+									function (author) {
+										return $elm$json$Json$Decode$succeed(
+											{author: author, date: date, msg: msg, revision: revision});
+									},
+									A2($elm$json$Json$Decode$field, 'author', $elm$json$Json$Decode$string));
+							},
+							A2($elm$json$Json$Decode$field, 'date', $elm$json$Json$Decode$string));
+					},
+					A2($elm$json$Json$Decode$field, 'msg', $elm$json$Json$Decode$string));
+			},
+			A2($elm$json$Json$Decode$field, 'revision', $elm$json$Json$Decode$string))));
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Ports$updatePath = _Platform_incomingPort(
 	'updatePath',
 	$elm$json$Json$Decode$oneOf(
@@ -5244,10 +5276,7 @@ var $author$project$Ports$updateRepo = _Platform_incomingPort(
 				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
 				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
 			])));
-var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Ports$updateStatus = _Platform_incomingPort(
 	'updateStatus',
 	$elm$json$Json$Decode$list(
@@ -5274,9 +5303,11 @@ var $author$project$Main$subscriptions = function (_v0) {
 			[
 				$author$project$Ports$updateStatus($author$project$Types$UpdateStatus),
 				$author$project$Ports$updatePath($author$project$Types$UpdatePath),
-				$author$project$Ports$updateRepo($author$project$Types$UpdateRepo)
+				$author$project$Ports$updateRepo($author$project$Types$UpdateRepo),
+				$author$project$Ports$updateLog($author$project$Types$UpdateLog)
 			]));
 };
+var $author$project$Types$Log = {$: 'Log'};
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -6139,6 +6170,23 @@ var $author$project$Util$isJust = function (x) {
 		return false;
 	}
 };
+var $author$project$Ports$log = _Platform_outgoingPort(
+	'log',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'password',
+					$elm$json$Json$Encode$string($.password)),
+					_Utils_Tuple2(
+					'root',
+					$elm$json$Json$Encode$string($.root)),
+					_Utils_Tuple2(
+					'username',
+					$elm$json$Json$Encode$string($.username))
+				]));
+	});
 var $author$project$Ports$revert = _Platform_outgoingPort(
 	'revert',
 	function ($) {
@@ -6260,6 +6308,14 @@ var $author$project$FileTree$updateCheck = F3(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
+			case 'ChangeTab':
+				var tab = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{tab: tab}),
+					_Utils_eq(tab, $author$project$Types$Log) ? $author$project$Ports$log(
+						{password: 'barneyhal', root: '/home/thor/temp/svn/gardist', username: 'tharnival'}) : $elm$core$Platform$Cmd$none);
 			case 'UpdateStatus':
 				var status = msg.a;
 				return _Utils_Tuple2(
@@ -6369,7 +6425,7 @@ var $author$project$Main$update = F2(
 								$author$project$FileTree$getCommitPaths(model.status)),
 							root: A2($elm$core$Maybe$withDefault, '.', model.path)
 						}));
-			default:
+			case 'Expand':
 				var path = msg.a;
 				var expanded = msg.b;
 				var newStatus = A3($author$project$FileTree$expand, path, expanded, model.status);
@@ -6377,6 +6433,18 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{status: newStatus}),
+					$elm$core$Platform$Cmd$none);
+			case 'GetLog':
+				var login = msg.a;
+				return _Utils_Tuple2(
+					model,
+					$author$project$Ports$log(login));
+			default:
+				var log = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{log: log}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -8167,6 +8235,83 @@ var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
 var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
 var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
+var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute = A2($rtfeldman$elm_css$Css$property, 'position', 'absolute');
+var $elm$core$String$concat = function (strings) {
+	return A2($elm$core$String$join, '', strings);
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$my_2 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.5rem'),
+			A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '0.5rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2 = A2($rtfeldman$elm_css$Css$property, 'padding', '0.5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative = A2($rtfeldman$elm_css$Css$property, 'position', 'relative');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_96 = A2($rtfeldman$elm_css$Css$property, 'width', '24rem');
+var $author$project$Styles$logEntry = _List_fromArray(
+	[
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_96,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$my_2,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2
+	]);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_2 = A2($rtfeldman$elm_css$Css$property, 'right', '0.5rem');
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
+	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+		$elm$virtual_dom$VirtualDom$text(str));
+};
+var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $author$project$Main$logSection = function (model) {
+	return A2(
+		$elm$core$List$concatMap,
+		function (x) {
+			return _List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$logEntry)
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text(
+							$elm$core$String$concat(
+								_List_fromArray(
+									['#', x.revision, ' by ', x.author]))),
+							A2(
+							$rtfeldman$elm_css$Html$Styled$a,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$css(
+									_List_fromArray(
+										[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_2]))
+								]),
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$text(
+									$elm$core$String$concat(
+										_List_fromArray(
+											[
+												A2($elm$core$String$left, 10, x.date),
+												' ',
+												A3($elm$core$String$slice, 11, 16, x.date)
+											])))
+								])),
+							A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil),
+							$rtfeldman$elm_css$Html$Styled$text(x.msg)
+						]))
+				]);
+		},
+		model.log);
+};
 var $rtfeldman$elm_css$Html$Styled$main_ = $rtfeldman$elm_css$Html$Styled$node('main');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -8268,15 +8413,6 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
-var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
-};
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
-	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
-		$elm$virtual_dom$VirtualDom$text(str));
-};
-var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_2 = A2($rtfeldman$elm_css$Css$property, 'margin', '0.5rem');
 var $author$project$Styles$text = _List_fromArray(
 	[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded_md, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_2]);
@@ -8290,7 +8426,6 @@ var $author$project$Types$Expand = F2(
 	function (a, b) {
 		return {$: 'Expand', a: a, b: b};
 	});
-var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
 var $author$project$Types$HandleCheck = F2(
 	function (a, b) {
 		return {$: 'HandleCheck', a: a, b: b};
@@ -8464,7 +8599,7 @@ var $author$project$FileTree$view = $author$project$FileTree$doView($author$proj
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32 = A2($rtfeldman$elm_css$Css$property, 'width', '8rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_64 = A2($rtfeldman$elm_css$Css$property, 'width', '16rem');
 var $author$project$Main$statusSection = function (model) {
-	return $author$project$Util$isJust(model.path) ? _Utils_ap(
+	return _Utils_ap(
 		_List_fromArray(
 			[
 				A2(
@@ -8562,7 +8697,64 @@ var $author$project$Main$statusSection = function (model) {
 						[
 							$rtfeldman$elm_css$Html$Styled$text('discard')
 						]))
-				]))) : _List_Nil;
+				])));
+};
+var $author$project$Types$ChangeTab = function (a) {
+	return {$: 'ChangeTab', a: a};
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$blue_400 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '96', '165', '250', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3 = A2($rtfeldman$elm_css$Css$property, 'margin-right', '0.75rem');
+var $author$project$Styles$tab = _Utils_ap(
+	$author$project$Styles$button,
+	_List_fromArray(
+		[
+			$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_32,
+			$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_3,
+			$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mr_3,
+			$rtfeldman$elm_css$Css$disabled(
+			_List_fromArray(
+				[
+					$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$blue_400),
+					$rtfeldman$elm_css$Css$hover(
+					_List_fromArray(
+						[
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$blue_400)
+						]))
+				]))
+		]));
+var $author$project$Main$tabsView = function (model) {
+	return _List_fromArray(
+		[
+			A2(
+			$rtfeldman$elm_css$Html$Styled$button,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$tab),
+					$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+					_Utils_eq(model.tab, $author$project$Types$Status)),
+					$rtfeldman$elm_css$Html$Styled$Events$onClick(
+					$author$project$Types$ChangeTab($author$project$Types$Status))
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text('Status')
+				])),
+			A2(
+			$rtfeldman$elm_css$Html$Styled$button,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css($author$project$Styles$tab),
+					$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+					_Utils_eq(model.tab, $author$project$Types$Log)),
+					$rtfeldman$elm_css$Html$Styled$Events$onClick(
+					$author$project$Types$ChangeTab($author$project$Types$Log))
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text('Log')
+				])),
+			A2($rtfeldman$elm_css$Html$Styled$br, _List_Nil, _List_Nil)
+		]);
 };
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
@@ -9227,7 +9419,16 @@ var $author$project$Main$view = function (model) {
 										A2($elm$core$Maybe$withDefault, 'No path specified', model.path))
 									]))
 							]),
-						$author$project$Main$statusSection(model)))
+						$author$project$Util$isJust(model.path) ? _Utils_ap(
+							$author$project$Main$tabsView(model),
+							function () {
+								var _v0 = model.tab;
+								if (_v0.$ === 'Status') {
+									return $author$project$Main$statusSection(model);
+								} else {
+									return $author$project$Main$logSection(model);
+								}
+							}()) : _List_Nil))
 				])));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

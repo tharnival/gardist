@@ -47,3 +47,24 @@ type alias StatusOutput =
 
 
 port updateStatus : (List StatusOutput -> msg) -> Sub msg
+
+
+type alias Login =
+    { root : String
+    , username : String
+    , password : String
+    }
+
+
+port log : Login -> Cmd msg
+
+
+type alias LogEntry =
+    { revision : String
+    , author : String
+    , date : String
+    , msg : String
+    }
+
+
+port updateLog : (List LogEntry -> msg) -> Sub msg
