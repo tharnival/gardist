@@ -5,6 +5,7 @@ use tauri::api::process::{CommandEvent, Output};
 use tauri::async_runtime::Receiver;
 use tauri::AppHandle;
 
+#[allow(dead_code)]
 pub fn log_output(app: AppHandle, cwd: PathBuf, cmd: &str, output: tauri::api::Result<Output>) {
     match output {
         Ok(out) => log_cmd(app, cwd, cmd, &out.stdout, &out.stderr, out.status.code()),
@@ -12,6 +13,7 @@ pub fn log_output(app: AppHandle, cwd: PathBuf, cmd: &str, output: tauri::api::R
     }
 }
 
+#[allow(dead_code)]
 pub fn log_process(app: AppHandle, cwd: PathBuf, cmd: &str, mut rx: Receiver<CommandEvent>) {
     let cmd_clone = cmd.to_string();
     tauri::async_runtime::spawn(async move {
@@ -31,6 +33,30 @@ pub fn log_process(app: AppHandle, cwd: PathBuf, cmd: &str, mut rx: Receiver<Com
     });
 }
 
+#[allow(dead_code)]
+pub fn blocking_log_process(
+    app: AppHandle,
+    cwd: PathBuf,
+    cmd: &str,
+    mut rx: Receiver<CommandEvent>,
+) {
+    let cmd_clone = cmd.to_string();
+    let mut stdout = String::new();
+    let mut stderr = String::new();
+    let mut exit_code = None;
+    while let Some(event) = rx.blocking_recv() {
+        if let CommandEvent::Stdout(line) = event {
+            stdout += &line;
+        } else if let CommandEvent::Stderr(line) = event {
+            stderr += &line;
+        } else if let CommandEvent::Terminated(payload) = event {
+            exit_code = payload.code;
+        }
+    }
+    log_cmd(app, cwd, &cmd_clone, &stdout, &stderr, exit_code);
+}
+
+#[allow(dead_code)]
 pub fn log_cmd(
     app: AppHandle,
     cwd: PathBuf,
@@ -55,6 +81,7 @@ pub fn log_cmd(
     log_text(app, &log);
 }
 
+#[allow(dead_code)]
 pub fn log_text(app: AppHandle, text: &str) {
     let mut log_dir = app.path_resolver().app_log_dir().unwrap();
     log_dir.push("log.txt");

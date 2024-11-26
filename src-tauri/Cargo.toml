@@ -2,7 +2,7 @@
 name = "app"
 version = "0.1.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["tharnival"]
 license = ""
 repository = ""
 default-run = "app"
@@ -19,6 +19,7 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.7.2", features = [ "fs-write-file", "os-all", "fs-read-dir", "dialog-open", "shell-execute"] }
 regex = "1.10.6"
+quick-xml = "*"
 
 
 [features]
