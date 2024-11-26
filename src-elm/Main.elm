@@ -64,7 +64,11 @@ update msg model =
         ChangeTab tab ->
             ( { model | tab = tab }
             , if tab == Log then
-                log { root = "/home/thor/temp/svn/gardist", username = "tharnival", password = "barneyhal" }
+                log
+                    { root = Maybe.withDefault "." model.path
+                    , username = model.username
+                    , password = model.password
+                    }
 
               else
                 Cmd.none
