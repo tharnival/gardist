@@ -6315,7 +6315,11 @@ var $author$project$Main$update = F2(
 						model,
 						{tab: tab}),
 					_Utils_eq(tab, $author$project$Types$Log) ? $author$project$Ports$log(
-						{password: 'barneyhal', root: '/home/thor/temp/svn/gardist', username: 'tharnival'}) : $elm$core$Platform$Cmd$none);
+						{
+							password: model.password,
+							root: A2($elm$core$Maybe$withDefault, '.', model.path),
+							username: model.username
+						}) : $elm$core$Platform$Cmd$none);
 			case 'UpdateStatus':
 				var status = msg.a;
 				return _Utils_Tuple2(
