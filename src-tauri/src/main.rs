@@ -109,7 +109,7 @@ fn svn_checkout(
 
     let (rx, mut child) = Command::new("svn")
         .current_dir(cwd.clone())
-        .args(["checkout", &repo, "."])
+        .args(["checkout", repo.trim(), "."])
         .args([
             "--non-interactive",
             "--username",
@@ -261,7 +261,7 @@ fn set_path(window: Window) {
                 .output()
                 .expect("Failed to spawn command");
 
-            let re = regex::Regex::new(r"URL: ([^\n]*)").unwrap();
+            let re = regex::Regex::new(r"URL: ([^\r\n]*)").unwrap();
             if let Some(captures) = re.clone().captures(&output.stdout) {
                 if let Some(url) = captures.get(1) {
                     repo = Some(url.as_str().to_string());
